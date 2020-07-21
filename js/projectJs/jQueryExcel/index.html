@@ -1,0 +1,59 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>jQuery简单仿Excel表格功能插件</title>
+
+		<link rel="stylesheet" type="text/css" href="css/font-awesome.4.6.0.css">
+
+		<script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+		<script type="text/javascript" src="js/excel.min.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				var option = {
+					row: 5,
+					col: 5
+				}
+				$(".wyb-excel").wybExcel(option);
+				$(".wyb-excel1").wybExcel(option);
+				
+				
+				$('select').change(function() {
+											$(".td-chosen-css").attr("data-command",$(this).val())
+											$(".td-chosen-css").text($(this).val())
+				})
+				$("tr").on("click",".td-chosen-css",function(){
+										 if($(this).data("command")){
+											 alert($(this).text())
+										 }
+				})
+				
+			});
+		</script>
+
+		<style type="text/css">
+			#test {
+				width: 1200px;
+				height: 600px;
+				margin: 0 auto;
+				margin-top: 20px;
+				padding: 17px;
+			}
+		</style>
+
+		<link rel="stylesheet" href="css/excel.css" type="text/css" />
+
+	</head>
+	<body>
+		<div class='wb hebingdanyuange'>
+			<select name="" id="" >
+				<option value="~cpk~">~cpk~</option>
+				<option value="~mean~">~mean~</option>
+				<option value="~cp~">~cp~</option>
+			</select>
+		</div>
+		<div class="wyb-excel" style="width:1000px;margin: 0 auto;"></div>
+		<div class="wyb-excel1" style="width:1000px;margin: 0 auto;"></div>
+		</div>
+	</body>
+</html>

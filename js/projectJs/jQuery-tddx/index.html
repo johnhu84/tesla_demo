@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title> DO </title>
+	<meta name="Generator" content="EditPlus">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	
+	<!-- 引用css -->
+    <style type="text/css">
+    #resizable1 img, #resizable2 img {
+		width:100%;
+		height:100%;
+	}
+	span {
+		font-size:100%;
+	}
+    </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+	<!-- 引用js -->
+    <script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="js/drag.js"></script>
+	<script src="http://www.jq22.com/jquery/jquery-ui-1.11.0.js"></script>
+	
+	<script>
+	$(function() {
+		$('.box-5 div').each(function() {
+			$(this).dragging({
+				move: 'both',
+				randomPosition: true,
+				hander: '.hander'
+			});
+		});
+	});
+
+	$(function() {
+		$("#resizable1").resizable({
+			aspectRatio: true//开启按比例缩放，也可以指定比例： 16 / 9
+		});
+	});
+	$(function() {
+		$("#resizable2").resizable({
+			aspectRatio: false
+		});
+		$(".resizable2").resizable({
+			aspectRatio: false
+		});
+	});
+	</script>
+ </head>
+ <body>
+	<div class='box box-5'>
+		<div id="resizable1" class="ui-widget-content"><i class='hander'></i><img src="img/04.jpg"></div>
+		<div id="resizable1" class="ui-widget-content">
+			<i class='hander'></i>
+		<table border="" cellspacing="" cellpadding="">
+			<tr><th>Header</th></tr>
+			<tr><td>Data</td></tr>
+		</table></div>
+		<div id="resizable2" class="ui-widget-content" style="padding: 10px"><i class='hander'></i><span>aspectRatio: false,可不按比例缩放</span></div>
+	
+	<div id="" class="ui-widget-content resizable2" style="padding: 10px"><i class='hander'></i><span>aspectRatio: false,可不按比例缩放12312</span></div>
+ </body>
+	<div id="" class="ui-widget-content resizable2" style="padding: 10px"><i class='hander'></i><span>aspectRatio: false,可不按比例缩放12123</span></div>
+ </html>

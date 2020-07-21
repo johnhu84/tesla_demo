@@ -1,0 +1,177 @@
+{
+  "flabel": "5A464DC7-B864-499D-AE7C-BF99F409AFC5,L3CS417L-GD",
+  "coordinate": "3012.29,-348.384,1170.15",
+  "points": [
+    {
+      "fx": "Y",
+      "fvc_value": "0",
+      "area": "HN",
+      "command": {
+        "max": 1,
+        "min": 2,
+        "mean": 3,
+        "range": 4,
+        "sigma": 2,
+        "ZeroLine": 0,
+        "UpperDeviation": 2,
+        "LowerDeviation": -2,
+        "standardDeviation": 2,
+        "junzhi": 100
+      },
+      "Identification": {
+        "ZeroLine": 0,
+        "UpperDeviation": 2,
+        "LowerDeviation": -2,
+        "standardDeviation": 2
+      },
+      "featvarLimits": [
+
+        {
+          "fvlHivalue": "1.5",
+          "fvlBeginTime": "defualt date",
+          "fvlLovalue": "-1.5"
+        },
+        {
+          "fvlHivalue": "2",
+          "fvlBeginTime": "2019/07/01 15:09:00",
+          "fvlLovalue": "-2"
+        },
+        {
+          "fvlHivalue": "1",
+          "fvlBeginTime": "2019/09/01 15:09:00",
+          "fvlLovalue": "-1"
+        }
+      ],
+
+      "sample": [
+
+        {
+          "s_label": "KS049702",
+          "s_createdatetime": "2019/4/29 15:09:00",
+          "s_filterM": "PP0",
+          "pc": -0.18
+
+        },
+        {
+          "s_label": "KS055969",
+          "s_createdatetime": "2019/4/30 10:36:00",
+          "s_filterM": "PP0",
+          "pc": -0.5
+        },
+        {
+          "s_label": "KP001337",
+          "s_createdatetime": "2019/5/25 9:08:00",
+          "s_filterM": "PP0",
+          "pc": 0.8
+        },
+        {
+          "s_label": "KS055970",
+          "s_createdatetime": "2019/6/6 15:53:00",
+          "s_filterM": "PP0",
+          "pc": 0.08
+        },
+
+        {
+          "s_label": "KS051057",
+          "s_createdatetime": "2019/6/14 14:48:00",
+          "s_filterM": "PP0",
+          "pc": 0.47
+        },
+
+        {
+          "s_label": "KS051116",
+          "s_createdatetime": "2019/6/18 10:29:00",
+          "s_filterM": "PP0",
+          "pc": 3
+        },
+        {
+          "s_label": "KS051307",
+          "s_createdatetime": "2019/6/21 10:37:00",
+          "s_filterM": "PP0",
+          "pc": 2.6
+        },
+        {
+          "s_label": "KS052345",
+          "s_createdatetime": "2019/7/22 12:26:00",
+          "s_filterM": "PP0",
+          "pc": 1.95
+        },
+        {
+          "s_label": "KS052493",
+          "s_createdatetime": "2019/7/26 15:32:00",
+          "s_filterM": "PP0",
+          "pc": 0.65
+        },
+        {
+          "s_label": "KS052685",
+          "s_createdatetime": "2019/8/7 15:19:00",
+          "s_filterM": "PP0",
+          "pc": 2.19
+        },
+        {
+          "s_label": "KS052786",
+          "s_createdatetime": "2019/8/8 13:33:00",
+          "s_filterM": "PP0",
+          "pc": 0.7
+        },
+        {
+          "s_label": "KS053005",
+          "s_createdatetime": "2019/8/15 16:08:00",
+          "s_filterM": "PP0",
+          "pc": 0.1
+        },
+        {
+          "s_label": "KS054895",
+          "s_createdatetime": "2019/10/8 15:40:00",
+          "s_filterM": "PP0",
+          "pc": 0.26
+        },
+        {
+          "s_label": "KP002303",
+          "s_createdatetime": "2019/10/9 13:29:00",
+          "s_filterM": "PP0",
+          "pc": -0.22
+        },
+        {
+          "s_label": "KS055093",
+          "s_createdatetime": "2019/10/23 13:11:00",
+          "s_filterM": "PP0",
+          "pc": -0.13
+        },
+        {
+          "s_label": "KS055620",
+          "s_createdatetime": "2019/10/25 13:05:00",
+          "s_filterM": "PP0",
+          "pc": 0.11
+        },
+        {
+          "s_label": "KS055742",
+          "s_createdatetime": "2019/10/25 15:52:00",
+          "s_filterM": "PP0",
+          "pc": -0.74
+        },
+        {
+          "s_label": "KS055765",
+          "s_createdatetime": "2019/10/30 10:23:00",
+          "s_filterM": "PP0",
+          "pc": 0.75
+        },
+
+        {
+          "s_label": "KS055965",
+          "s_createdatetime": "2019/10/30 12:12:00",
+          "s_filterM": "PP0",
+          "pc": 0.15
+        },
+        {
+          "s_label": "KS055966",
+          "s_createdatetime": "2019/10/30 14:12:00",
+          "s_filterM": "PP0",
+          "pc": 0.25
+        }
+
+      ]
+
+    }
+  ]
+}
