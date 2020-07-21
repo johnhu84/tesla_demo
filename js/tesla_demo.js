@@ -44,6 +44,26 @@ function getRandomXYZCoordinates(lNum) {
   return retArr;
 }
 
+function getNewNumberArray(n) {
+  var retArr = []
+  for (var i = 0; i < n; i++) {
+    retArr.push(0)
+  }
+  return retArr
+}
+
+function getNewNumber2DArray(n, n) {
+  var retArr[]
+  for (var i = 0; i < n; i++) {
+    var retArr2 = []
+    for (var j = 0; j < n; j++) {
+      retArr2.push(0)
+    }
+    retArr.push(retArr2)
+  }
+  return retArr
+}
+
 /*private Map<String, Object> lineHelper(
             Double[] x11
             , Double[] y11
