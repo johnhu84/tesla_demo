@@ -52,6 +52,22 @@ function getNewNumberArray(n) {
   return retArr
 }
 
+function copyNumberArray(x) {
+  var retArr = []
+  for (var i = 0; i < x.length; i++) {
+    retArr.push(x[i])
+  }
+  return retArr
+}
+
+function getNewBooleanArray(n) {
+  var retArr = []
+  for (var i = 0; i < n; i++) {
+    retArr.push(false)
+  }
+  return retArr
+}
+
 function getNewNumber2DArray(n, n) {
   var retArr[]
   for (var i = 0; i < n; i++) {
@@ -69,78 +85,76 @@ function getNewNumber2DArray(n, n) {
             , Double[] y11
             , Double[] x22
             , Double[] y22*/
-/*function lineHelper(x11, y11, x22, y22) {
+function lineHelper(x11, y11, x22, y22) {
 
-            final int N = 205;
-            final int INF = 50005;
-            int n;
-            double[] X1 = new double[N];
-            double[] Y1 = new double[N];
-            double[] X2 = new double[N];
-            double[] Y2 = new double[N];
-            double[][] W = new double[N][N];
-            double[] Lx = new double[N];
-            double[] Ly = new double[N];
-            int[] left = new int[N];
-            boolean[] S = new boolean[N];
-            boolean[] T = new boolean[N];
+            const N = 205;
+            const INF = 50005;
+            var n;
+            var X1 = getNewNumberArray(N);
+            var Y1 = getNewNumberArray(N);
+            var X2 = getNewNumberArray(N);
+            var Y2 = getNewNumberArray(N);
+            var W = getNewNumber2DArray(N, N);
+            var Lx = getNewNumberArray(N);
+            var Ly = getNewNumberArray(N);
+            var left = getNewNumberArray(N);
+            var S = getNewBooleanArray(N);
+            var T = getNewBooleanArray(N);
 
             n = y22.length - 1;
 
-            List<Double> x1 = new ArrayList<Double>(Arrays.asList(x11));
-            List<Double> x2 = new ArrayList<Double>(Arrays.asList(x22));
-            List<Double> y1 = new ArrayList<Double>(Arrays.asList(y11));
-            List<Double> y2 = new ArrayList<Double>(Arrays.asList(y22));
+            var x1 = copyNumberArray(x11);
+            var x2 = copyNumberArray(x22);
+            var y1 = copyNumberArray(y11);
+            var y2 = copyNumberArray(y22);
 
-            for (int i = 1; i <= n; i++) {
-                X1[i] = x1.get(i);
-                Y1[i] = y1.get(i);
+            for (var i = 1; i <= n; i++) {
+                X1[i] = x1[i];
+                Y1[i] = y1[i];
             }
-            for (int i = 1; i <= n; i++) {
+            for (var i = 1; i <= n; i++) {
 
-                X2[i] = x2.get(i);
-                Y2[i] = y2.get(i);
+                X2[i] = x2[i];
+                Y2[i] = y2[i];
             }
 
-
-            for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= n; j++) {
+            for (var i = 1; i <= n; i++) {
+                for (var j = 1; j <= n; j++) {
                     W[j][i] = -Math.sqrt(Math.pow(X1[i] - X2[j], 2) + Math.pow(Y1[i] - Y2[j], 2));
                 }
             }
 
-
             //km
-            for (int i = 1; i <= n; i++) {
+            for (var i = 1; i <= n; i++) {
                 left[i] = 0;
                 Lx[i] = 0;
                 Ly[i] = 0;
-                for (int j = 1; j <= n; j++) {
+                for (var j = 1; j <= n; j++) {
                     Lx[i] = Math.max(Lx[i], W[i][j]);
                 }
             }
-            for (int i = 1; i <= n; i++) {
+            for (var i = 1; i <= n; i++) {
                 while (true) {
-                    for (int j = 1; j <= n; j++) {
+                    for (var j = 1; j <= n; j++) {
                         S[j] = T[j] = false;
                     }
+                    //ToDo, 7/21/2020, what's this match here?  and the INF
                     if (match(S, n, Lx, Ly, W, T, left, i)) {
                         break;
                     } else {
-
-                        double a = INF;
-                        for (int h = 1; h <= n; h++) {
+                        var a = INF;
+                        for (var h = 1; h <= n; h++) {
                             if (!S[h]) {
                                 continue;
                             }
-                            for (int m = 1; m <= n; m++) {
+                            for (var m = 1; m <= n; m++) {
                                 if (T[m]) {
                                     continue;
                                 }
                                 a = Math.min(a, Lx[h] + Ly[m] - W[h][m]);
                             }
                         }
-                        for (int w = 1; w <= n; w++) {
+                        for (var w = 1; w <= n; w++) {
                             if (S[w]) {
                                 Lx[w] -= a;
                             }
@@ -154,19 +168,11 @@ function getNewNumber2DArray(n, n) {
             }
             //////
 
-            Map<String, Object> result = new HashMap<>();
-            for (int i = 1; i <= n; i++) {
-
+            var result = {};
+            for (var i = 1; i <= n; i++) {
                 //内点 key
-                result.put(X2[left[i]] + "," + Y2[left[i]], X1[i] + "," + Y1[i]);
+                result[X2[left[i]] + "," + Y2[left[i]]] = X1[i] + "," + Y1[i];
             }
 
             return result;
-        } catch (Exception e) {
-            System.out.println("lineHelper exception: ");
-            System.out.println(e.getMessage());
-            HashMap<String, Object> exceptionHm = new HashMap();
-            exceptionHm.put("msg", e.getMessage());
-            return exceptionHm;
-        }
-    }*/
+    }
