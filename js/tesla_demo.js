@@ -17,13 +17,34 @@ function changeCanvas(e) {
   var lWidth = document.getElementById('lWidth').value
   var lHeight = document.getElementById('lHeight').value
   var lNum = document.getElementById('lNum').value
+  graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
   for (var i in spheres) {
     let sphere = spheres[i]
     window._scene.remove(spheres[i].sphere)
   }
   spheres = []
   spheres = getRandomXYZCoordinates(lNum)
-  //var positions = labelPositionOptimizerUsingArea2(labelWidth, labelHeight, x2.length, x1, y1);
+
+  spheres.forEach(function (sphere) {
+      // 显示标签对应的测点
+      var _cameraManager = new THREE._CameraManager();
+      var _screenXY = _cameraManager._convertWorldPositionToScreenCoord(window._camera, _position, window._canvasWidth, window._canvasHeight);
+      //vertex.visible = true;
+      //vertex.scale.set(3, 3, 3);
+      //var vertexPosition = [vertex.position.x, vertex.position.y, vertex.position.z]
+      /*var accuratePos2 = _cameraManager._convertWorldPositionToScreenCoord(window._camera, vertexPosition, window._canvasWidth, window._canvasHeight);
+      var accuratePos = getAccurateScreenPosition2(vertex);
+      var msgPos = { x: accuratePos2[0] + leftDiff3, y: accuratePos2[1] + topDiff3 };
+      if (typeof duplicateCacheChecker[msgPos.x + ',' + msgPos.y] === 'undefined') {
+          duplicateCacheChecker[msgPos.x + ',' + msgPos.y] = true;
+          x2.push(msgPos.x);
+          y2.push(msgPos.y);
+          z2.push(vertex.onePoints);
+      }*/
+  });
+var x1 = [0]
+var y1 = [0]
+  var positions = labelPositionOptimizerUsingArea2(labelWidth, labelHeight, x2.length, x1, y1);
 }
 
 function getRandomXYZCoordinates(lNum) {
@@ -69,7 +90,7 @@ function getNewBooleanArray(n) {
 }
 
 function getNewNumber2DArray(n, n) {
-  var retArr[]
+  var retArr = []
   for (var i = 0; i < n; i++) {
     var retArr2 = []
     for (var j = 0; j < n; j++) {
