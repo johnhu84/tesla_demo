@@ -17,6 +17,11 @@ function changeCanvas(e) {
   var lWidth = document.getElementById('lWidth').value
   var lHeight = document.getElementById('lHeight').value
   var lNum = document.getElementById('lNum').value
+  var containerElm = document.getElementById('container');
+  var graphContainerElm = document.getElementById('graphContainer');
+
+  var topDiff3 = containerElm.offsetTop - graphContainerElm.offsetTop;
+  var leftDiff3 = containerElm.offsetLeft - graphContainerElm.offsetLeft;
   graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
   for (var i in spheres) {
     let sphere = spheres[i]
@@ -24,14 +29,24 @@ function changeCanvas(e) {
   }
   spheres = []
   spheres = getRandomXYZCoordinates(lNum)
-
+  var x2 = [0]
+  var y2 = [0]
   spheres.forEach(function (sphere) {
       // 显示标签对应的测点
       var _cameraManager = new THREE._CameraManager();
-      var _screenXY = _cameraManager._convertWorldPositionToScreenCoord(window._camera, _position, window._canvasWidth, window._canvasHeight);
+      sphere.sphere.position[0] = sphere.sphere.position['x']
+      sphere.sphere.position[1] = sphere.sphere.position['y']
+      sphere.sphere.position[2] = sphere.sphere.position['z']
+      var _screenXY = _cameraManager._convertWorldPositionToScreenCoord(window._camera, sphere.sphere.position, window._canvasWidth, window._canvasHeight);
+      //var _position = {x: _screenXY.x, y: _screenXY.y}
+
+      x2.push(_screenXY[0] + leftDiff3)
+      y2.push(_screenXY[1] + topDiff3)
+
       //vertex.visible = true;
       //vertex.scale.set(3, 3, 3);
       //var vertexPosition = [vertex.position.x, vertex.position.y, vertex.position.z]
+
       /*var accuratePos2 = _cameraManager._convertWorldPositionToScreenCoord(window._camera, vertexPosition, window._canvasWidth, window._canvasHeight);
       var accuratePos = getAccurateScreenPosition2(vertex);
       var msgPos = { x: accuratePos2[0] + leftDiff3, y: accuratePos2[1] + topDiff3 };
@@ -44,7 +59,58 @@ function changeCanvas(e) {
   });
 var x1 = [0]
 var y1 = [0]
-  var positions = labelPositionOptimizerUsingArea2(labelWidth, labelHeight, x2.length, x1, y1);
+  var positions = labelPositionOptimizerUsingArea2(Number(lWidth), Number(lHeight), x2.length, x1, y1);
+  drawLabels(x1, y1, x2, y2, lWidth, lHeight)
+}
+
+function drawLabels(x1, y1, x2, y2, lWidth, lHeight) {
+  console.log('drawLabels...')
+  try {
+      graph.getModel().beginUpdate();
+      var parent = graph.getDefaultParent();
+      for (var i = 1; i < x1.length; i++) {
+        var f_label = "f_label" + i
+        var _x1 = x1[i]
+        var _y1 = y1[i]
+        var x = x2[i]
+        var y = y2[i]
+      /*var v1ValueTest = '_x1 (rect): ' + _x1 + ', _y1 (rect): ' + _y1 +
+      ', x: ' + x + ', y: ' + y;*/
+      var v1Value = '<div style="width:'+lWidth+'px;height:'+lHeight+'px;border: 1px solid black;"></div>'
+      //var len = res.points.length;
+      //var tableMargin = '';
+
+      //for testing
+      //var _temp = 'margin-right: '+globalObj.spacing.chartSpacingLeftRight+'px;';
+      /*v1Value += "<div class='svg-table' " +
+          "style='margin-top:20px;display:inline-block;border: " + handsonTableBorderStyle +
+          ";background-color: #fff;" + _temp +"'>" + v1ValueTest + "</div>"*/
+
+      /*res.points.forEach(function (item, i) {
+          // 最后一个table不需要间隔
+          // var _temp = i < len - 1 ? tableMargin : '';
+          var _temp = 'margin-right: '+globalObj.spacing.chartSpacingLeftRight+'px;';
+          v1Value += "<div class='svg-table' data-dir='" + item.fx + "' " +
+              "style='display:inline-block;border: " + handsonTableBorderStyle +
+              ";background-color: #fff;" + _temp +"'>" + hTableHtml[i] + "</div>"
+      });*/
+
+      var v1 = graph.insertVertex(parent, f_label, v1Value, _x1, _y1, lWidth, lHeight, 'text;html=1;overflow=fill;fillColor=none;');
+      //existingVertices is for the functionality "应用到“
+      //globalObj.existingVertices.push(v1);
+
+      // canvas测点坐标
+      var v2 = graph.insertVertex(parent, f_label + "point2", '', x, y, 0, 0, 'overflow=fill;fillColor=none;fontColor=#000000;');
+      // 连线
+      var e1 = graph.insertEdge(parent, f_label + "point3", '', v1, v2,
+          "shape=link;")
+        }
+      /*globalObj.cache[globalObjIndex].edge = e1;
+      globalObj.cache[globalObjIndex].v1 = v1;
+      globalObj.cache[globalObjIndex].v2 = v2;*/
+  } finally {
+      graph.getModel().endUpdate();
+  }
 }
 
 function getRandomXYZCoordinates(lNum) {
@@ -100,6 +166,25 @@ function getNewNumber2DArray(n, n) {
   }
   return retArr
 }
+
+function match(S,n,Lx,Ly,W,T,left,i)
+{
+    S[i] = true;
+    for (var j = 1; j <= n; j++)
+    {
+        if (Math.abs(Lx[i] + Ly[j] - W[i][j]) < 1e-9 && !T[j])
+        {
+            T[j] = true;
+            if (left[j] == 0 || match(S,n,Lx,Ly,W,T,left,left[j]))
+            {
+                left[j] = i;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 
 /*private Map<String, Object> lineHelper(
             Double[] x11
