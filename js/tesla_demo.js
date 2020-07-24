@@ -328,8 +328,8 @@ function lineHelper(x11, y11, x22, y22) {
         }
     }
 
-    function getStartingLabelWidthAndHeight(maximumArea, labelW, labelH) {
-      var x = Math.sqrt(maximumArea / (labelW * labelH))
+    function getStartingLabelWidthAndHeight(maximumArea, labelW, labelH, count) {
+      var x = Math.sqrt(maximumArea / (labelW * labelH * count))
       var retLabelWidthAndHeight = {labelW: labelW * x, labelH: labelH * x};
       return retLabelWidthAndHeight
     }
@@ -337,10 +337,10 @@ function lineHelper(x11, y11, x22, y22) {
     function getMaximumAreaPerLabel(labelW, labelH, count) {
       var pageScreenWidth = document.getElementById('pageScreen').offsetWidth;
       var pageScreenHeight = document.getElementById('pageScreen').offsetHeight;
-      var containerWidth = document.getElementById('canvas').offsetWidth;
-      var containerHeight = document.getElementById('canvas').offsetHeight;
-      var containerLeft = document.getElementById('canvas').offsetLeft;
-      var containerTop = document.getElementById('canvas').offsetTop;
+      var containerWidth = document.getElementById('container').offsetWidth;
+      var containerHeight = document.getElementById('container').offsetHeight;
+      var containerLeft = document.getElementById('container').offsetLeft;
+      var containerTop = document.getElementById('container').offsetTop;
       var totalArea = 0;
 
       var startPositions = {
@@ -376,7 +376,7 @@ function lineHelper(x11, y11, x22, y22) {
 
       for (var i in startPositions) {
         var startPosition = startPositions[i]
-        totalArea += (endY - startY) * (endX - startX)
+        totalArea += (startPosition.endY - startPosition.startY) * (startPosition.endX - startPosition.startX)
       }
       return totalArea
     }
@@ -387,13 +387,13 @@ function lineHelper(x11, y11, x22, y22) {
       /*var containerWidth = document.getElementById('container').offsetWidth;
       var containerHeight = document.getElementById('container').offsetHeight;
       var containerLeft = document.getElementById('container').offsetLeft;*/
-      var containerWidth = document.getElementById('canvas').offsetWidth;
-      var containerHeight = document.getElementById('canvas').offsetHeight;
-      var containerLeft = document.getElementById('canvas').offsetLeft;
+      var containerWidth = document.getElementById('container').offsetWidth;
+      var containerHeight = document.getElementById('container').offsetHeight;
+      var containerLeft = document.getElementById('container').offsetLeft;
       var leftSideWidth = containerLeft - globalObj.spacing.pageSpacingLeftRight;
       var rightSideWidth = pageScreenWidth - containerLeft - containerWidth - globalObj.spacing.pageSpacingLeftRight;
       //var containerTop = document.getElementById('container').offsetTop;
-      var containerTop = document.getElementById('canvas').offsetTop;
+      var containerTop = document.getElementById('container').offsetTop;
       var downSideHeight = pageScreenHeight - containerTop - containerHeight - globalObj.spacing.pageSpacingUpDown;
       var upSideHeight = containerTop - globalObj.spacing.pageSpacingUpDown;
       var useTheseSides = {
@@ -416,7 +416,7 @@ function lineHelper(x11, y11, x22, y22) {
               startX: useTheseSides.left ? globalObj.spacing.pageSpacingLeftRight : 0,
               startY: useTheseSides.left ? (useTheseSides.up ? containerTop : globalObj.spacing.pageSpacingUpDown) : 0,
               endX: useTheseSides.left ? containerLeft : 0,
-              endY: useTheseSides.left ? (useTheseSides.down ? pageScreenHeight : containerTop + containerHeight) : 0,
+              endY: useTheseSides.left ? (useTheseSides.down ? containerTop + containerHeight:pageScreenHeight) : 0,
               currentX: 0,
               currentY: 0,
               used: useTheseSides.left
@@ -425,7 +425,8 @@ function lineHelper(x11, y11, x22, y22) {
               startX: useTheseSides.right ? containerLeft + containerWidth : 0,
               startY: useTheseSides.right ? (useTheseSides.up ? containerTop : globalObj.spacing.pageSpacingUpDown) : 0,
               endX: useTheseSides.right ? pageScreenWidth : 0,
-              endY: useTheseSides.right ? (useTheseSides.down ? containerTop + containerHeight : pageScreenHeight) : 0,
+              //endY: useTheseSides.right ? (useTheseSides.down ? containerTop + containerHeight : pageScreenHeight) : 0,
+              endY: useTheseSides.right ? (useTheseSides.down ? containerTop + containerHeight:pageScreenHeight) : 0,
               currentX: 0,
               currentY: 0,
               used: useTheseSides.right
@@ -649,8 +650,10 @@ function lineHelper(x11, y11, x22, y22) {
                         countHelper++;
                         errorOccurred = true
                     } else {
-                      if (startPositions.up.currentY + (labelH * 2)) {
+                      if (startPositions.up.currentY + (labelH * 2) <= startPositions.up.endY) {
                         startPositions.up.currentY += labelH
+                        startPositions.up.currentX = startPositions.up.startX
+                        errorOccurred = true
                       } else {
                         startPositions.up.used = false
                       }
@@ -661,14 +664,16 @@ function lineHelper(x11, y11, x22, y22) {
                     errorOccurred = true
                   } else if ((startPositions.left.currentY + labelH)
                         <= startPositions.left.endY) {
-                        x1Left.push(startPositions.left.startX);
+                        x1Left.push(startPositions.left.currentX);
                         y1Left.push(startPositions.left.currentY);
                         startPositions.left.currentY += (labelH);// + (globalObj.spacing.chartSpacingUpDown * 4);
                         countHelper++;
                         errorOccurred = true
                     } else {
-                      if (startPositions.left.currentX + (labelW * 2)) {
+                      if (startPositions.left.currentX + (labelW * 2) <= startPositions.left.endX) {
                         startPositions.left.currentX += labelW
+                        startPositions.left.currentY = startPositions.left.startY
+                        errorOccurred = true
                       } else {
                         startPositions.left.used = false
                       }
@@ -679,14 +684,16 @@ function lineHelper(x11, y11, x22, y22) {
                     errorOccurred = true
                   } else if ((startPositions.right.currentY + labelH)
                         <= startPositions.right.endY) {
-                        x1Right.push(startPositions.right.startX);
+                        x1Right.push(startPositions.right.currentX);
                         y1Right.push(startPositions.right.currentY);
                         startPositions.right.currentY += labelH;// + (globalObj.spacing.chartSpacingUpDown * 4);
                         countHelper++;
                         errorOccurred = true
                     } else {
-                      if (startPositions.right.currentX + (labelW * 2)) {
+                      if (startPositions.right.currentX + (labelW * 2) <= startPositions.right.endX) {
                         startPositions.right.currentX += labelW
+                        startPositions.right.currentY = startPositions.right.startY
+                        errorOccurred = true
                       } else {
                         startPositions.right.used = false
                       }
@@ -698,13 +705,15 @@ function lineHelper(x11, y11, x22, y22) {
                   } else if ((startPositions.down.currentX + labelW)
                         <= startPositions.down.endX) {
                         x1Down.push(startPositions.down.currentX);
-                        y1Down.push(startPositions.down.startY);
+                        y1Down.push(startPositions.down.currentY);
                         startPositions.down.currentX += labelW;// + (globalObj.spacing.chartSpacingLeftRight * 4);
                         countHelper++;
                         errorOccurred = true
                     } else {
-                      if (startPositions.down.currentY + (labelH * 2)) {
+                      if (startPositions.down.currentY + (labelH * 2) <= startPositions.down.endY) {
                         startPositions.down.currentY += labelH
+                        startPositions.down.currentX = startPositions.down.startX
+                        errorOccurred = true
                       } else {
                         startPositions.down.used = false
                       }
@@ -713,8 +722,12 @@ function lineHelper(x11, y11, x22, y22) {
                 default:
                     break;
             }
-            if (!errorOccurred &&
-              !(startPositions.up.used || startPositions.left.used || startPositions.right.used || startPositions.down.used))//lastCountHelper == countHelper)
+            console.log('errorOccurred is ' + errorOccurred + ', up used: ' +
+          startPositions.up.used + ', left used: ' + startPositions.left.used + ', right used: '
+          + startPositions.right.used + ', down used: ' + startPositions.down.used)
+            if (//!errorOccurred ||
+              !(startPositions.up.used || startPositions.left.used ||
+                startPositions.right.used || startPositions.down.used))//lastCountHelper == countHelper)
                 return false;
             if (++roundRobinULRD > 4) {
                 roundRobinULRD = 1;
@@ -828,16 +841,18 @@ function lineHelper(x11, y11, x22, y22) {
 
     function labelPositionOptimizerUsingAreaTesla(labelW, labelH, count, x1, y1) {
         getLabelPositions2HelperObj = {};
-        var minW = 30;
-        var minH = 30;
+        var minW = 10;
+        var minH = 10;
         var labelR = labelW / labelH;
         var widthGreaterThanHeight = labelW > labelH;
         var _width = minW;
         var _height = minH;
         var maximumArea = getMaximumAreaPerLabel(labelW, labelH, count)
-        var startingLabelWidthAndHeight = getStartingLabelWidthAndHeight(maximumArea, labelW, labelH)
-        var labelW = startingLabelWidthAndHeight.labelW
-        var labelH = startingLabelWidthAndHeight.labelH
+        var startingLabelWidthAndHeight = getStartingLabelWidthAndHeight(maximumArea, labelW, labelH, count)
+        var labelW2 = startingLabelWidthAndHeight.labelW > labelW ? labelW:startingLabelWidthAndHeight.labelW
+        var labelH2 = startingLabelWidthAndHeight.labelH > labelH ? labelH:startingLabelWidthAndHeight.labelH
+        labelW2 = labelW2 < minW?minW:labelW2
+        labelH2 = labelH2 < minH?minH:labelH2
         while (labelW2 > minW && labelH2 > minH) {
             if (widthGreaterThanHeight) {
                 labelH2 = labelH2 - 1;
@@ -846,7 +861,7 @@ function lineHelper(x11, y11, x22, y22) {
                 labelW2= labelW2 - 1;
                 labelH2 = Math.floor(labelW2 / labelR);
             }
-            if ((labelW2 * labelH2) < maximumArea) {
+            //if ((labelW2 * labelH2 * count) < maximumArea) {
               var startPositions = labelPositionOptimizerGetStartPositions(labelW2, labelH2, count, x1, y1)
               var containerAreaHelperTesla = labelPositionOptimizerUsingAreaHelperFirst(labelW2,
                 labelH2, count, x1, y1, startPositions);
@@ -857,7 +872,7 @@ function lineHelper(x11, y11, x22, y22) {
                 _height = labelH2;
                 break;
               }
-            }
+            //}
         }
 
         return {
