@@ -60,7 +60,7 @@ function changeCanvas(e) {
 var x1 = [0]
 var y1 = [0]
   var positions = labelPositionOptimizerUsingAreaTesla(Number(lWidth), Number(lHeight), x2.length, x1, y1);
-  drawLabels(x1, y1, x2, y2, lWidth, lHeight)
+  drawLabels(x1, y1, x2, y2, positions.width, positions.height)
 }
 
 function drawLabels(x1, y1, x2, y2, lWidth, lHeight) {
@@ -853,7 +853,7 @@ function lineHelper(x11, y11, x22, y22) {
         var labelH2 = startingLabelWidthAndHeight.labelH > labelH ? labelH:startingLabelWidthAndHeight.labelH
         labelW2 = labelW2 < minW?minW:labelW2
         labelH2 = labelH2 < minH?minH:labelH2
-        while (labelW2 > minW && labelH2 > minH) {
+        while (labelW2 >= minW && labelH2 >= minH) {
             if (widthGreaterThanHeight) {
                 labelH2 = labelH2 - 1;
                 labelW2 = Math.floor(labelH2 * labelR);
