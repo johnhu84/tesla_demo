@@ -1115,10 +1115,12 @@
             if (pathPts.length > 0) {
                 console.log(debugHelperStr + " is overlapping something")
                 //find midpoint between two points and draw all three points
-                c.moveTo(p1x, p1y);
-                //for (var i = 0; i < pathPts.length; i++) {
-                    c.lineTo(pathPts[0].x, pathPts[0].y)
-                //}
+
+                //c.moveTo(p1x, p1y);
+                c.moveTo(pathPts[0].x, pathPts[0].y);
+                for (var i = 1; i < pathPts.length; i++) {
+                    c.lineTo(pathPts[i].x, pathPts[i].y)
+                }
                 c.lineTo(p2x, p2y)
                 //c.strokeStyle = "red"
                 c.stroke();

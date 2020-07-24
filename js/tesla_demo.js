@@ -1,4 +1,7 @@
 const maxXYZ = 1.5
+var labelToPointPathHelperObj = {}
+var labelToPointMapperHelper = {}
+var pointToLabelMapperHelper = {}
 var spheres = []
 
 function lWidthChange(e) {
@@ -18,10 +21,11 @@ function changeCanvas(e) {
   var lHeight = document.getElementById('lHeight').value
   var lNum = document.getElementById('lNum').value
   var containerElm = document.getElementById('container');
+  //var containerElm2 = document.getElementById('canvas');
   var graphContainerElm = document.getElementById('graphContainer');
 
-  var topDiff3 = containerElm.offsetTop - graphContainerElm.offsetTop;
-  var leftDiff3 = containerElm.offsetLeft - graphContainerElm.offsetLeft;
+  var topDiff3 = containerElm.offsetTop - graphContainerElm.offsetTop + 20;
+  var leftDiff3 = containerElm.offsetLeft - graphContainerElm.offsetLeft + 20;
   graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
   for (var i in spheres) {
     let sphere = spheres[i]
@@ -60,20 +64,46 @@ function changeCanvas(e) {
 var x1 = [0]
 var y1 = [0]
   var positions = labelPositionOptimizerUsingAreaTesla(Number(lWidth), Number(lHeight), x2.length, x1, y1);
-  drawLabels(x1, y1, x2, y2, positions.width, positions.height)
+  drawLabels(x1, y1, x2, y2, positions.width, positions.height, positions.retArr)
 }
 
-function drawLabels(x1, y1, x2, y2, lWidth, lHeight) {
+function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
   console.log('drawLabels...')
+
+  labelToPointPathHelperObj = retArr
+  labelToPointPathHelperObj.lWidth = lWidth
+  labelToPointPathHelperObj.lHeight = lHeight
+  mxGraph.prototype.ordered = false;
   try {
       graph.getModel().beginUpdate();
       var parent = graph.getDefaultParent();
+      var edges = []
+      var vertices = []
+      /*var cell = new mxCell('your text', new mxGeometry(0, 0, 50, 50), 'curved=1;endArrow=classic;html=1;');
+      cell.geometry.setTerminalPoint(new mxPoint(50, 150), true);
+      cell.geometry.setTerminalPoint(new mxPoint(150, 50), false);
+
+      cell.geometry.relative = true;
+      cell.edge = true;
+
+      cell = graph.addCell(cell);
+      edges.push(cell)*/
+      var lineHelperResult = lineHelper(x1, y1, x2, y2)
       for (var i = 1; i < x1.length; i++) {
         var f_label = "f_label" + i
-        var _x1 = x1[i]
-        var _y1 = y1[i]
+        //the label x, y
+        //var _x1 = x1[i]
+        //var _y1 = y1[i]
+        //the point x, y
         var x = x2[i]
         var y = y2[i]
+        var _xHelper = lineHelperResult[x+','+y]
+        if (_xHelper) {
+          var _xHelperArr = _xHelper.split(',')
+          var _x1 = _xHelperArr[0]
+          var _y1 = _xHelperArr[1]
+        labelToPointMapperHelper[_x1+','+_y1] = {x:x,y:y}
+        pointToLabelMapperHelper[x+','+y] = {x:_x1,y:_y1}
       /*var v1ValueTest = '_x1 (rect): ' + _x1 + ', _y1 (rect): ' + _y1 +
       ', x: ' + x + ', y: ' + y;*/
       var v1Value = '<div style="width:'+lWidth+'px;height:'+lHeight+'px;border: 1px solid black;"></div>'
@@ -95,22 +125,96 @@ function drawLabels(x1, y1, x2, y2, lWidth, lHeight) {
               ";background-color: #fff;" + _temp +"'>" + hTableHtml[i] + "</div>"
       });*/
 
-      var v1 = graph.insertVertex(parent, f_label, v1Value, _x1, _y1, lWidth, lHeight, 'text;html=1;overflow=fill;fillColor=none;');
+      var v1 = graph.insertVertex(parent, f_label, v1Value, _x1, _y1, lWidth, lHeight, 'text;html=1;overflow=fill;fillColor=white;textOpacity:50');
       //existingVertices is for the functionality "应用到“
       //globalObj.existingVertices.push(v1);
 
       // canvas测点坐标
       var v2 = graph.insertVertex(parent, f_label + "point2", '', x, y, 0, 0, 'overflow=fill;fillColor=none;fontColor=#000000;');
+      vertices.push(v1)
       // 连线
       var e1 = graph.insertEdge(parent, f_label + "point3", '', v1, v2,
           "shape=link;")
+          edges.push(e1)
         }
+        }
+        graph.orderCells(true, edges)
+        graph.orderCells(false, vertices)
       /*globalObj.cache[globalObjIndex].edge = e1;
       globalObj.cache[globalObjIndex].v1 = v1;
       globalObj.cache[globalObjIndex].v2 = v2;*/
   } finally {
       graph.getModel().endUpdate();
   }
+}
+
+function findEdgeRouterPoints(srcX, srcY, destX, destY) {
+  var pageScreenWidth = document.getElementById('pageScreen').offsetWidth;
+  var pageScreenHeight = document.getElementById('pageScreen').offsetHeight;
+  var containerWidth = document.getElementById('container').offsetWidth;
+  var containerHeight = document.getElementById('container').offsetHeight;
+  var containerLeft = document.getElementById('container').offsetLeft;
+  var containerTop = document.getElementById('container').offsetTop;
+  var lWidth = labelToPointPathHelperObj.lWidth
+  var lHeight = labelToPointPathHelperObj.lHeight
+
+  //labelToPointMapperHelper
+  //pointToLabelMapperHelper
+  var labelPoint = pointToLabelMapperHelper[destX+','+destY]
+  var labelX = labelPoint.x
+  var labelY = labelPoint.y
+  var retArr = []
+  //check if that labelToPointPathHelperObj has srcX,srcY or destX,destY
+  //if (labelToPointPathHelperObj[srcX+','+srcY]) {
+  if (labelToPointPathHelperObj[labelX+','+labelY]) {
+    var udlr = labelToPointPathHelperObj[labelX+','+labelY];
+    console.log('udlr: ' + udlr)
+    if (udlr == 'up') {
+      retArr.push({x:labelPoint.x + lWidth/2,y:labelPoint.y+lHeight})
+      //draw next point down by half of globalObj.spacing.chartSpacingUpDown
+      retArr.push({x:labelPoint.x + lWidth/2,y:labelPoint.y+lHeight+(globalObj.spacing.chartSpacingUpDown/2)})
+      //check if label is to the left of point or to the right
+      if (labelX < destX) { //to the left
+        retArr.push({x:labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2),
+          y:labelPoint.y+lHeight+(globalObj.spacing.chartSpacingUpDown/2)})
+          retArr.push({x:labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2),
+            y:containerTop-globalObj.spacing.chartSpacingUpDown})
+      } else {
+        retArr.push({x:labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2),
+          y:labelPoint.y+lHeight+(globalObj.spacing.chartSpacingUpDown/2)})
+          //
+          retArr.push({x:labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2),
+            y:containerTop-globalObj.spacing.chartSpacingUpDown})
+      }
+
+      //check if "labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2)" is to the left of container's left
+      //or to the right of the container's right
+      if (labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2) < containerLeft) {
+        /*retArr.push({x:containerLeft,y:labelPoint.y+lHeight+(globalObj.spacing.chartSpacingUpDown/2)})
+        retArr.push({x:labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2),
+        y:containerTop-globalObj.spacing.chartSpacingUpDown})*/
+        retArr.push({x:containerLeft,y:containerTop-globalObj.spacing.chartSpacingUpDown})
+      } else if (labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2) >
+      (containerLeft + containerWidth)) {
+        /*retArr.push({x:containerLeft+containerWidth,y:labelPoint.y+lHeight+(globalObj.spacing.chartSpacingUpDown/2)})
+        retArr.push({x:labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2),
+        y:containerTop-globalObj.spacing.chartSpacingUpDown})*/
+        retArr.push({x:containerLeft+containerWidth,y:containerTop-globalObj.spacing.chartSpacingUpDown})
+      }/* else {
+        retArr.push({x:labelPoint.x+lWidth+(globalObj.spacing.chartSpacingLeftRight/2),
+        y:containerTop-globalObj.spacing.chartSpacingUpDown})
+      }*/
+    } else if (udlr == 'left') {
+
+    } else if (udlr == 'right') {
+
+    } else {
+
+    }
+  } else if (labelToPointPathHelperObj[destX+','+destY]) {
+
+  }
+  return []//retArr
 }
 
 function getRandomXYZCoordinates(lNum) {
@@ -635,6 +739,8 @@ function lineHelper(x11, y11, x22, y22) {
         var y1Right = [];
         var x1Down = [];
         var y1Down = [];
+        //chartSpacingUpDown: 5,
+        //chartSpacingLeftRight: 5,
         while (countHelper < count - 1) {
             //var lastCountHelper = countHelper;
             var errorOccurred = false
@@ -646,12 +752,12 @@ function lineHelper(x11, y11, x22, y22) {
                         <= startPositions.up.endX) {
                         x1Up.push(startPositions.up.currentX);
                         y1Up.push(startPositions.up.currentY);
-                        startPositions.up.currentX += (labelW);// + (globalObj.spacing.chartSpacingLeftRight * 4);
+                        startPositions.up.currentX += (labelW + globalObj.spacing.chartSpacingLeftRight);// + (globalObj.spacing.chartSpacingLeftRight * 4);
                         countHelper++;
                         errorOccurred = true
                     } else {
                       if (startPositions.up.currentY + (labelH * 2) <= startPositions.up.endY) {
-                        startPositions.up.currentY += labelH
+                        startPositions.up.currentY += labelH + globalObj.spacing.chartSpacingUpDown
                         startPositions.up.currentX = startPositions.up.startX
                         errorOccurred = true
                       } else {
@@ -666,12 +772,12 @@ function lineHelper(x11, y11, x22, y22) {
                         <= startPositions.left.endY) {
                         x1Left.push(startPositions.left.currentX);
                         y1Left.push(startPositions.left.currentY);
-                        startPositions.left.currentY += (labelH);// + (globalObj.spacing.chartSpacingUpDown * 4);
+                        startPositions.left.currentY += (labelH + globalObj.spacing.chartSpacingUpDown);// + (globalObj.spacing.chartSpacingUpDown * 4);
                         countHelper++;
                         errorOccurred = true
                     } else {
                       if (startPositions.left.currentX + (labelW * 2) <= startPositions.left.endX) {
-                        startPositions.left.currentX += labelW
+                        startPositions.left.currentX += labelW + globalObj.spacing.chartSpacingLeftRight
                         startPositions.left.currentY = startPositions.left.startY
                         errorOccurred = true
                       } else {
@@ -686,13 +792,13 @@ function lineHelper(x11, y11, x22, y22) {
                         <= startPositions.right.endY) {
                         x1Right.push(startPositions.right.currentX);
                         y1Right.push(startPositions.right.currentY);
-                        startPositions.right.currentY += labelH;// + (globalObj.spacing.chartSpacingUpDown * 4);
+                        startPositions.right.currentY += labelH + globalObj.spacing.chartSpacingUpDown;// + (globalObj.spacing.chartSpacingUpDown * 4);
                         countHelper++;
                         errorOccurred = true
                     } else {
                       if (startPositions.right.currentX + (labelW * 2) <= startPositions.right.endX) {
-                        startPositions.right.currentX += labelW
-                        startPositions.right.currentY = startPositions.right.startY
+                        startPositions.right.currentX += labelW + globalObj.spacing.chartSpacingLeftRight
+                        startPositions.right.currentY = startPositions.right.startY// + globalObj.spacing.chartSpacingUpDown
                         errorOccurred = true
                       } else {
                         startPositions.right.used = false
@@ -706,13 +812,13 @@ function lineHelper(x11, y11, x22, y22) {
                         <= startPositions.down.endX) {
                         x1Down.push(startPositions.down.currentX);
                         y1Down.push(startPositions.down.currentY);
-                        startPositions.down.currentX += labelW;// + (globalObj.spacing.chartSpacingLeftRight * 4);
+                        startPositions.down.currentX += labelW + globalObj.spacing.chartSpacingLeftRight;// + (globalObj.spacing.chartSpacingLeftRight * 4);
                         countHelper++;
                         errorOccurred = true
                     } else {
                       if (startPositions.down.currentY + (labelH * 2) <= startPositions.down.endY) {
-                        startPositions.down.currentY += labelH
-                        startPositions.down.currentX = startPositions.down.startX
+                        startPositions.down.currentY += labelH + globalObj.spacing.chartSpacingUpDown
+                        startPositions.down.currentX = startPositions.down.startX// + globalObj.spacing.chartSpacingLeftRight
                         errorOccurred = true
                       } else {
                         startPositions.down.used = false
@@ -803,32 +909,44 @@ function lineHelper(x11, y11, x22, y22) {
                 getLabelPositions2HelperObj[x1Down[i] + ',' + y1Down[i]] = 'down';
             }
         }*/
-
+        var retArr = {}
         rotateHelper = 0;
         while (x1Up.length > 0 || x1Left.length > 0 || x1Right.length > 0 || x1Down.length > 0) {
             switch (rotateHelper++) {
                 case 0:
                     if (x1Up.length > 0) {
-                        x1.push(x1Up.shift());
-                        y1.push(y1Up.shift());
+                      var x1UpTemp = x1Up.shift()
+                      var y1UpTemp = y1Up.shift()
+                        x1.push(x1UpTemp);
+                        y1.push(y1UpTemp);
+                        retArr[x1UpTemp+','+y1UpTemp] = 'up'
                     }
                     break;
                 case 1:
                     if (x1Left.length > 0) {
-                        x1.push(x1Left.shift());
-                        y1.push(y1Left.shift());
+                      var x1LeftTemp = x1Left.shift()
+                      var y1LeftTemp = y1Left.shift()
+                        x1.push(x1LeftTemp);
+                        y1.push(y1LeftTemp);
+                        retArr[x1LeftTemp+','+y1LeftTemp] = 'left'
                     }
                     break;
                 case 2:
                     if (x1Right.length > 0) {
-                        x1.push(x1Right.shift());
-                        y1.push(y1Right.shift());
+                      var x1RightTemp = x1Right.shift()
+                      var y1RightTemp = y1Right.shift()
+                        x1.push(x1RightTemp);
+                        y1.push(y1RightTemp);
+                        retArr[x1RightTemp + ',' + y1RightTemp] = 'right'
                     }
                     break;
                 case 3:
                     if (x1Down.length > 0) {
-                        x1.push(x1Down.shift());
-                        y1.push(y1Down.shift());
+                      var x1DownTemp = x1Down.shift()
+                      var y1DownTemp = y1Down.shift()
+                        x1.push(x1DownTemp);
+                        y1.push(y1DownTemp);
+                        retArr[x1DownTemp + ',' + y1DownTemp] = 'down'
                     }
                     rotateHelper = 0;
                     break;
@@ -836,7 +954,7 @@ function lineHelper(x11, y11, x22, y22) {
                     break;
             }
         }
-        return true;
+        return {res: true, retArr: retArr};
     }
 
     function labelPositionOptimizerUsingAreaTesla(labelW, labelH, count, x1, y1) {
@@ -853,6 +971,7 @@ function lineHelper(x11, y11, x22, y22) {
         var labelH2 = startingLabelWidthAndHeight.labelH > labelH ? labelH:startingLabelWidthAndHeight.labelH
         labelW2 = labelW2 < minW?minW:labelW2
         labelH2 = labelH2 < minH?minH:labelH2
+        var _retArr = []
         while (labelW2 >= minW && labelH2 >= minH) {
             if (widthGreaterThanHeight) {
                 labelH2 = labelH2 - 1;
@@ -867,9 +986,10 @@ function lineHelper(x11, y11, x22, y22) {
                 labelH2, count, x1, y1, startPositions);
 
               //call helper function here to see this labelW2 and this labelH2 can fit count number of labels
-              if (containerAreaHelperTesla) {
+              if (containerAreaHelperTesla.res) {
                 _width = labelW2;
                 _height = labelH2;
+                _retArr = containerAreaHelperTesla.retArr
                 break;
               }
             //}
@@ -879,6 +999,7 @@ function lineHelper(x11, y11, x22, y22) {
             width: _width,
             height: _height,
             originalWidth: labelW,
-            originalHeight: labelH
+            originalHeight: labelH,
+            retArr: _retArr
         };
     }

@@ -25,8 +25,8 @@ var globalObj = {
     spacing: {
         pageSpacingUpDown: 0,
         pageSpacingLeftRight: 0,
-        chartSpacingUpDown: 5,
-        chartSpacingLeftRight: 5,
+        chartSpacingUpDown: 10,
+        chartSpacingLeftRight: 10,
         numOfPages: 12
     },
     labelDimensions: {
