@@ -32,7 +32,7 @@ $(function(){
     draw(canvasWidth, canvasHeight, fov, near, far, ambientColor, ambientIntensity, pointColor, pointIntensity, backgroundColor);
 
     // 加载模型
-	initModel(rId, rName, true);
+	//initModel(rId, rName, true);
 
 });
 

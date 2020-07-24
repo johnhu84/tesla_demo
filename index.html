@@ -14,7 +14,7 @@
     <script src="js/projectJs/handsontable-6.2.2/dist/handsontable.full.js"></script>
     <link href="js/projectJs/handsontable-6.2.2/dist/handsontable.full.css" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="js/projectJs/comboTree/css/tree.css"/>
+    <!--<link rel="stylesheet" type="text/css" href="js/projectJs/comboTree/css/tree.css"/>-->
     <script src="js/projectJs/comboTree/js/comboTreePlugin.js"></script>
 
     <style>
@@ -121,8 +121,8 @@
     </style>
 </head>
 <body>
-<div class="slideTxtBox">
-    <div class="right-con">
+<!--<div class="slideTxtBox">
+    <div class="right-con">-->
       <style>
     /* 避免标签框遮盖指示线 */
     #labelContainer > div {
@@ -131,7 +131,7 @@
 </style>
  <!--  canvas画布 -->
 <div style="position: relative;width: 101%;top:0px;z-index: 1;background-color: #fff;
-	 margin-top: 0px; height: 1080px;overflow-x: auto;overflow-y: hidden;">
+	 margin-top: 0px;height: 1080px">
    <div style="width:600px;">
    <div style="width:150px;float:left;">
      宽度：<input type="text" style="width:90px;" name="lWidth" id="lWidth" onchange="lWidthChange(event)"/>
@@ -147,15 +147,17 @@
    </div>
    </div>
     <div id="pageScreen" class="pageScreenCanvas"
-    style="position: absolute;width: 1567px;top:0px;z-index: 1; height: 1075px;overflow: hidden;
+    style="position: absolute;width: 1567px;height: 1080px;top:0px;z-index: 1;
     border: 1px solid black;">
-        <div id="graphContainer" ondblclick="changeZIndex(1)" style="z-index: 11;position:absolute; pointer-events:none;width: 1567px;height: 100%;margin: auto">
+        <div id="graphContainer" ondblclick="changeZIndex(1)" style="z-index: 11;
+        position:absolute; pointer-events:none;width: 1567px;height: 1080px;margin: auto">
             <div id="mubanContainer"></div>
             <div id="labelContainer"></div>
         </div>
-        <div id="container" class="" style="z-index: 8;width: 400px;height: 360px;position: relative;top:357.5px;left:583.5px;margin: inherit">
+        <div id="container" class="" style="z-index: 8;width: 440px;height: 400px;position: relative;
+        top:357.5px;left:583.5px;margin: inherit;background-color: bisque;">
         <!-- <div id="container" class="" style="z-index: 8;width: 400px;height: 360px;position: relative;top:0;left:0;margin: inherit"> -->
-            <canvas id="canvas" style="position: absolute;left: 0px;top: 0px;z-index: 10"></canvas>
+            <canvas id="canvas" style="margin: 20; position: absolute;left: 0px;top: 0px;z-index: 10"></canvas>
             <div id="childrenSuo" style="width: 100%;height: 100%;background-color:transparent;left: 0px;top: 0px;z-index: 10"></div>
         </div>
     </div>
@@ -196,7 +198,7 @@
         <!-- 3D end -->
         <div class="reportbottom" style="display: none">页脚</div>
 
-        <div style="margin-top:35px;background-color: #fff;display: inline-block;width: 100%;overflow: scroll" class="clearfix">
+        <div style="margin-top:35px;background-color: #fff;width: 100%;overflow: scroll;display:none" class="clearfix">
 
         	<div id="dataset-tabs" class="layui-tab" lay-filter="dataset-tabs" >
 			  <ul class="layui-tab-title">
@@ -205,8 +207,6 @@
 			  </div>
 			</div>
 
-
-            <%--            设置子坐标系--%>
             <div id="ChildCoordinates" style="display: none">
                 <div class="ChildCoordinates" style="padding:15px 25px">
                     <div class="BigOne">
@@ -359,7 +359,6 @@
                     </div>
                 </div>
             </div>
-            <%--            //测点编辑--%>
             <div  id="PointEditing" style="display: none">
                 <div class="PointEditing">
                     <div class="BigPointEditing" style="">
@@ -382,7 +381,6 @@
                     </div>
                 </div>
             </div>
-            <%--            //新建特征--%>
             <div  id="NewFeatures" class="" style="display: none">
                 <div class="PointEditing NewFeatures MrginT30">
                     <div>
@@ -407,7 +405,6 @@
                     </div>
                 </div>
             </div>
-            <%--            //编辑子坐标系--%>
             <div  id="EditChildCoordinate" style="display: none">
                 <div class="PointEditing EditChildCoordinate">
                     <div class="BigPointEditing" style="">
@@ -432,7 +429,6 @@
                     </div>
                 </div>
             </div>
-            <%--            新建子坐标系--%>
             <div  id="NewCreatChildCoordinate" style="display: none">
                 <div class="PointEditing EditChildCoordinate NewCreatChildCoordinate">
                     <div class="BigPointEditing" style="height: 120px !important;">
@@ -457,7 +453,6 @@
                     </div>
                 </div>
             </div>
-            <%--            //创建偏差--%>
             <div  id="CreateDeviation" class="" style="display: none">
                 <div class="PointEditing NewFeatures CreateDeviation MrginT30">
                     <div>
@@ -728,7 +723,6 @@
 
 
             </div>
-            <%--            //创建/编辑理论值--%>
             <div  id="CreateTheoreticalValue" class="" style="display: none">
                 <div class="PointEditing NewFeatures CreateDeviation MrginT30">
                     <div>
@@ -761,7 +755,6 @@
                     </div>
                 </div>
             </div>
-            <%--            追术报告--%>
             <div id="TraceBackTo" class="TraceBackTo" style="display: none;height: 100%;">
                 <div class="layui-tab layui-tab-brief clearfix" style="height: 100%;" id="customDataTab" lay-filter="customDataTabFilter">
 
@@ -779,20 +772,9 @@
 
 
             </div>
-        </div>
-    </div>
+        <!--</div>
+    </div>-->
 
-    <!-- 设置 -->
-    <%@ include file="setting.jsp"%>
-    <!-- 设置结束 -->
-
-    <div class="enlargeNarrow">
-        <div class="clearfix">
-            <span onclick="Narrow()" style="" class="Narrow fl element elwuuiconsuoxiao"></span>
-            <span style="" class="fl  center enlargeNarrowCont" ><span class="enlargeNarrowNum">78</span>%</span>
-            <span onclick="enlarge()" style="" class="enlarge fl element elwuuiconxiangjifangda"></span>
-        </div>
-    </div>
     <link rel="stylesheet" href="js/jquery-ui/jquery-ui.min.css">
     <script type="text/javascript" src="js/jquery-ui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/report/js/Chartbundle.js"></script>
@@ -1233,20 +1215,56 @@
 
 
         $(document).ready(function(){
-            $(".dataSourceSelect").select2()
 
-            $(".dataSourceSelect").change(function(){
-                var dataSourceSelectVal = $(".dataSourceSelect").val();
-                console.log(dataSourceSelectVal)
-            })
-        })//追溯报告
+          $("#container").draggable({ containment: "#pageScreen" })/*, distance: 10,// disabled: true,
+                drag: function() {
+                    //orbitControlChange();
+                }
+            });*/
+            $("#container").resizable({
+                handles: 'n, e, s, w, ne, nw, sw, se',// disabled: true,
+                resize: function( event, ui ) {
+                  var container = document.getElementById('container')
+                    window._camera.aspect = (container.offsetWidth - 40) / (container.offsetHeight - 40);
+                    window._camera.updateProjectionMatrix();
+                    window._renderer.setSize( container.offsetWidth - 40, container.offsetHeight - 40 );
+                    /*var canvasRect = renderer.context.canvas.getBoundingClientRect();
+                    var graphContainerRect = document.getElementById('graphContainer').getBoundingClientRect();
+                    var topDiff2 = $('#container canvas').offset().top - $('#graphContainer').offset().top;
+                    var leftDiff2 = $('#container canvas').offset().left - $('#graphContainer').offset().left;
+                    var topDiff = canvasRect.top - graphContainerRect.top;
+                    var leftDiff = canvasRect.left - graphContainerRect.left;
+                    try {
 
-
+                      // Adds cells to the model in a single step
+                      graph.getModel().beginUpdate();
+                      var graphBounds = graph.getGraphBounds();
+                      parent = graph.getDefaultParent();
+                      var v1 = graph.insertVertex(parent, 'anchor1', '', 0 - graphBounds.x, 0 - graphBounds.y, 0, 0,'overflow=fill;fillColor=none;fontColor=#000000;');
+                      var v2 = graph.insertVertex(parent, 'anchor2', '', leftDiff - graphBounds.x, topDiff - graphBounds.y, 0, 0,'overflow=fill;fillColor=none;fontColor=#000000;');
+                      var e1 = graph.insertEdge(parent, 'anchorEdge', '', v1, v2);
+                      if (typeof globalObj.anchor === 'undefined')
+                      globalObj.anchor = {};
+                      else {
+                        graph.getModel().remove(globalObj.anchor.v1);
+                        graph.getModel().remove(globalObj.anchor.v2);
+                        graph.getModel().remove(globalObj.anchor.e1);
+                      }
+                      //graph.remove
+                      globalObj.anchor.v1 = v1;
+                      globalObj.anchor.v2 = v2;
+                      globalObj.anchor.e1 = e1;
+                    } finally {
+                      graph.getModel().endUpdate();
+                    }*/
+                    //orbitControlChange();
+                }
+            });
+        })
 
     </script>
 
     <!-- 添加模型树结构 -->
-    <%@include file="./addModel.jsp" %>
 
     <script src="js/report/tabs.js" type="text/javascript"></script>
 </body>

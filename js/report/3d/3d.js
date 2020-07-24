@@ -461,7 +461,7 @@ function CloseBoxSelectionSingleChoice(pickType) {
  * 颜色
  */
 $(function () {
-    $(".DSBgColor").colorpicker(); //底色拾色器
+    /*$(".DSBgColor").colorpicker(); //底色拾色器
 
     //透明度滑动插件
     scale = function (btn, bar, title, fn) {
@@ -499,7 +499,7 @@ $(function () {
     new scale('btn0', 'bar0', 'title0', (opacity) => {
         console.log(opacity);
 
-    });
+    });*/
 })
 
 /**
@@ -609,7 +609,7 @@ function MeasureDistance(e) {
  * @returns
  */
 function getSpecialPointsLocation(_specialPointCallback) {
-    var modelName = rid_2_model_name[rId][0];
+    var modelName = typeof rId === 'undefined' ? '' : rid_2_model_name[rId][0];
     locationArray = [];
     var callback = function (specialPointGroup) {
         for (var i = 0; i < specialPointGroup.length; i++) {
