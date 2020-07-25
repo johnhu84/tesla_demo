@@ -747,6 +747,18 @@ function lineHelper(x11, y11, x22, y22) {
         var y1Right = [];
         var x1Down = [];
         var y1Down = [];
+        var upNumOfLabelsPerRow = 0
+        var upNumOfLabelsPerRowCount = true
+        var upNumOfRows = 1
+        var leftNumOfLabelsPerColumn = 0
+        var leftNumOfLabelsPerColumnCount = true
+        var leftNumOfColumns = 1
+        var rightNumOfLabelsPerColumn = 0
+        var rightNumOfLabelsPerColumnCount = true
+        var rightNumOfColumns = 1
+        var downNumOfLabelsPerRow = 0
+        var downNumOfLabelsPerRowCount = true
+        var downNumOfRows = 1
         //chartSpacingUpDown: 5,
         //chartSpacingLeftRight: 5,
         while (countHelper < count - 1) {
@@ -763,14 +775,19 @@ function lineHelper(x11, y11, x22, y22) {
                         startPositions.up.currentX += (labelW + globalObj.spacing.chartSpacingLeftRight);// + (globalObj.spacing.chartSpacingLeftRight * 4);
                         countHelper++;
                         errorOccurred = true
+                        if (upNumOfLabelsPerRowCount) {
+                          upNumOfLabelsPerRow++
+                        }
                     } else {
-                      if (startPositions.up.currentY + (labelH * 2) <= startPositions.up.endY) {
+                      if ((startPositions.up.currentY + (labelH * 2) + (globalObj.spacing.chartSpacingUpDown * 2)) <= startPositions.up.endY) {
                         startPositions.up.currentY += labelH + globalObj.spacing.chartSpacingUpDown
                         startPositions.up.currentX = startPositions.up.startX
                         errorOccurred = true
+                        upNumOfRows++
                       } else {
                         startPositions.up.used = false
                       }
+                      upNumOfLabelsPerRowCount = false
                     }
                     break;
                 case 2: //left
@@ -783,14 +800,19 @@ function lineHelper(x11, y11, x22, y22) {
                         startPositions.left.currentY += (labelH + globalObj.spacing.chartSpacingUpDown);// + (globalObj.spacing.chartSpacingUpDown * 4);
                         countHelper++;
                         errorOccurred = true
+                        if (leftNumOfLabelsPerColumnCount) {
+                          leftNumOfLabelsPerColumn++
+                        }
                     } else {
-                      if (startPositions.left.currentX + (labelW * 2) <= startPositions.left.endX) {
+                      if ((startPositions.left.currentX + (labelW * 2) + (globalObj.spacing.chartSpacingLeftRight * 2)) <= startPositions.left.endX) {
                         startPositions.left.currentX += labelW + globalObj.spacing.chartSpacingLeftRight
                         startPositions.left.currentY = startPositions.left.startY
                         errorOccurred = true
+                        leftNumOfColumns++
                       } else {
                         startPositions.left.used = false
                       }
+                      leftNumOfLabelsPerColumnCount = false
                     }
                     break;
                 case 3: //right
@@ -803,14 +825,20 @@ function lineHelper(x11, y11, x22, y22) {
                         startPositions.right.currentY += labelH + globalObj.spacing.chartSpacingUpDown;// + (globalObj.spacing.chartSpacingUpDown * 4);
                         countHelper++;
                         errorOccurred = true
+                        if (rightNumOfLabelsPerColumnCount) {
+                          rightNumOfLabelsPerColumn++
+                        }
                     } else {
-                      if (startPositions.right.currentX + (labelW * 2) <= startPositions.right.endX) {
+                      if ((startPositions.right.currentX + (labelW * 2) + (globalObj.spacing.chartSpacingLeftRight * 2))
+                       <= startPositions.right.endX) {
                         startPositions.right.currentX += labelW + globalObj.spacing.chartSpacingLeftRight
                         startPositions.right.currentY = startPositions.right.startY// + globalObj.spacing.chartSpacingUpDown
                         errorOccurred = true
+                        rightNumOfColumns++
                       } else {
                         startPositions.right.used = false
                       }
+                      rightNumOfLabelsPerColumnCount = false
                     }
                     break;
                 case 4: //down
@@ -823,14 +851,19 @@ function lineHelper(x11, y11, x22, y22) {
                         startPositions.down.currentX += labelW + globalObj.spacing.chartSpacingLeftRight;// + (globalObj.spacing.chartSpacingLeftRight * 4);
                         countHelper++;
                         errorOccurred = true
+                        if (downNumOfLabelsPerRowCount) {
+                          downNumOfLabelsPerRow++
+                        }
                     } else {
-                      if (startPositions.down.currentY + (labelH * 2) <= startPositions.down.endY) {
+                      if ((startPositions.down.currentY + (labelH * 2) + (globalObj.spacing.chartSpacingUpDown * 2)) <= startPositions.down.endY) {
                         startPositions.down.currentY += labelH + globalObj.spacing.chartSpacingUpDown
                         startPositions.down.currentX = startPositions.down.startX// + globalObj.spacing.chartSpacingLeftRight
                         errorOccurred = true
+                        downNumOfRows++
                       } else {
                         startPositions.down.used = false
                       }
+                      downNumOfLabelsPerRowCount = false
                     }
                     break;
                 default:
@@ -850,15 +883,20 @@ function lineHelper(x11, y11, x22, y22) {
 
         //07/23/2020 this next four if blocks is for centering all the labels within their up|left|right|down blocks
         if (x1Up.length > 0) {
-            var upUsedWidth = x1Up[x1Up.length - 1] + labelW - x1Up[0];
-            var upUsedHeight = y1Up[y1Up.length - 1] + labelH - y1Up[0]
-            var upMarginX = (pageScreenWidth - upUsedWidth) / 2;
-            var upMarginY = (containerTop - upUsedHeight) / 2;
+            var upUsedWidth = x1Up[upNumOfLabelsPerRow - 1] +
+            (labelW + globalObj.spacing.chartSpacingLeftRight) - x1Up[0];
+            //x1Up[x1Up.length - 1] + labelW - x1Up[0];
+            var upUsedHeight = y1Up[y1Up.length - 1] + (labelH + globalObj.spacing.chartSpacingUpDown) - y1Up[0]
+            //y1Up[y1Up.length - 1] + labelH - y1Up[0]
+            var upMarginX = (pageScreenWidth - upUsedWidth) / (upNumOfLabelsPerRow + 1)
+            //(pageScreenWidth - upUsedWidth) / 2;
+            var upMarginY = (containerTop - upUsedHeight) / (upNumOfRows + 1)
+            //(containerTop - upUsedHeight) / 2;
             upMarginX = isNaN(upMarginX) ? 0 : upMarginX;
             upMarginY = isNaN(upMarginY) ? 0 : upMarginY;
             for (var i = 0; i < x1Up.length; i++) {
-                x1Up[i] = Math.floor(x1Up[i] + upMarginX);
-                y1Up[i] = Math.floor(y1Up[i] + upMarginY);
+                x1Up[i] = Math.floor(x1Up[i] + (upMarginX * ((i%upNumOfLabelsPerRow) + 1)));
+                y1Up[i] = Math.floor(y1Up[i] + (upMarginY * (Math.floor(i/upNumOfLabelsPerRow) + 1)));
                 //getLabelPositions2HelperObj[x1Up[i] + ',' + y1Up[i]] = 'up';
             }
         }
@@ -872,22 +910,28 @@ function lineHelper(x11, y11, x22, y22) {
             if (!useTheseSides.down) {
                 leftHeight += (pageScreenHeight - containerHeight - containerTop);
             }*/
-            var leftUsedHeight = y1Left[y1Left.length - 1] + labelH - y1Left[0];
-            var leftUsedWidth = x1Left[x1Left.length - 1] + labelW - x1Left[0];
-            var leftMarginX = (leftWidth - leftUsedWidth) / 2;
-            var leftMarginY = (leftHeight - leftUsedHeight) / 2;
+            var leftUsedHeight = y1Left[leftNumOfLabelsPerColumn - 1] +
+            (labelH + globalObj.spacing.chartSpacingUpDown) - y1Left[0];
+            //y1Left[y1Left.length - 1] + labelH - y1Left[0];
+            var leftUsedWidth = x1Left[x1Left.length - 1] +
+            (labelW + globalObj.spacing.chartSpacingLeftRight) - x1Left[0];
+            var leftMarginX = (leftWidth - leftUsedWidth) / (leftNumOfColumns + 1)// / 2;
+            var leftMarginY = (leftHeight - leftUsedHeight) / (leftNumOfLabelsPerColumn + 1)//2;
             leftMarginX = isNaN(leftMarginX) ? 0 : leftMarginX;
             leftMarginY = isNaN(leftMarginY) ? 0 : leftMarginY;
             for (var i = 0; i < x1Left.length; i++) {
-                x1Left[i] = Math.floor(x1Left[i] + leftMarginX)
-                y1Left[i] = Math.floor(y1Left[i] + leftMarginY);
+                x1Left[i] = Math.floor(x1Left[i] + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1)))
+                y1Left[i] = Math.floor(y1Left[i] + (leftMarginY * ((i%leftNumOfLabelsPerColumn) + 1)));
                 //getLabelPositions2HelperObj[x1Left[i] + ',' + y1Left[i]] = 'left';
             }
         }
 
         if (x1Right.length > 0) {
-            var rightUsedHeight = (y1Right[y1Right.length - 1] + labelH) - y1Right[0];
-            var rightUsedWidth = (x1Right[x1Right.length - 1] + labelW) - x1Right[0];
+            var rightUsedHeight = (y1Right[rightNumOfLabelsPerColumn - 1] + labelH +
+              globalObj.spacing.chartSpacingUpDown) - y1Right[0];
+            //(y1Right[y1Right.length - 1] + labelH) - y1Right[0];
+            var rightUsedWidth = (x1Right[x1Right.length - 1] + labelW +
+              globalObj.spacing.chartSpacingLeftRight) - x1Right[0];
             var rightHeight = containerHeight;
             /*if (!useTheseSides.up) {
                 rightHeight += containerTop;
@@ -896,13 +940,14 @@ function lineHelper(x11, y11, x22, y22) {
                 rightHeight += (pageScreenHeight - containerHeight - containerTop);
             }*/
             var rightMarginX = (pageScreenWidth - (containerLeft + containerWidth) -
-                rightUsedWidth) / 2//(labelW)// + globalObj.spacing.pageSpacingLeftRight);
-            var rightMarginY = (rightHeight - rightUsedHeight) / 2;
+                rightUsedWidth) / (rightNumOfColumns + 1)//2
+                //(labelW)// + globalObj.spacing.pageSpacingLeftRight);
+            var rightMarginY = (rightHeight - rightUsedHeight) / (rightNumOfLabelsPerColumn + 1)//2;
             rightMarginX = isNaN(rightMarginX) ? 0 : rightMarginX;
             rightMarginY = isNaN(rightMarginY) ? 0 : rightMarginY;
             for (var i = 0; i < x1Right.length; i++) {
-                x1Right[i] = Math.floor(x1Right[i] + rightMarginX);
-                y1Right[i] = Math.floor(y1Right[i] + rightMarginY);
+                x1Right[i] = Math.floor(x1Right[i] + (rightMarginX * (Math.floor(i/rightNumOfLabelsPerColumn) + 1)));
+                y1Right[i] = Math.floor(y1Right[i] + (rightMarginY * ((i%rightNumOfLabelsPerColumn) + 1)));
                 //getLabelPositions2HelperObj[x1Right[i] + ',' + y1Right[i]] = 'right';
             }
         }
@@ -910,15 +955,18 @@ function lineHelper(x11, y11, x22, y22) {
         if (x1Down.length > 0) {
             var bottomWidth = pageScreenWidth;
             var bottomHeight = pageScreenHeight - containerHeight - containerTop;
-            var downUsedWidth = (x1Down[x1Down.length - 1] + labelW) - x1Down[0];
-            var downUsedHeight = (y1Down[y1Down.length - 1] + labelH) - y1Down[0];
-            var downMarginX = (bottomWidth - downUsedWidth) / 2;
-            var downMarginY = (bottomHeight - downUsedHeight) / 2;
+            var downUsedWidth = (x1Down[downNumOfLabelsPerRow - 1] + labelW +
+            globalObj.spacing.chartSpacingLeftRight) - x1Down[0];
+            //(x1Down[x1Down.length - 1] + labelW) - x1Down[0];
+            var downUsedHeight = (y1Down[y1Down.length - 1] + labelH +
+            globalObj.spacing.chartSpacingUpDown) - y1Down[0];
+            var downMarginX = (bottomWidth - downUsedWidth) / (downNumOfLabelsPerRow + 1)//2;
+            var downMarginY = (bottomHeight - downUsedHeight) / (downNumOfRows + 1)//2;
             downMarginX = isNaN(downMarginX) ? 0 : downMarginX;
             downMarginY = isNaN(downMarginY) ? 0 : downMarginY;
             for (var i = 0; i < x1Down.length; i++) {
-                x1Down[i] = Math.floor(x1Down[i] + downMarginX);
-                y1Down[i] = Math.floor(y1Down[i] + downMarginY);
+                x1Down[i] = Math.floor(x1Down[i] + (downMarginX * ((i%downNumOfLabelsPerRow) + 1)));
+                y1Down[i] = Math.floor(y1Down[i] + (downMarginY * (Math.floor(i/downNumOfLabelsPerRow) + 1)));
                 //getLabelPositions2HelperObj[x1Down[i] + ',' + y1Down[i]] = 'down';
             }
         }//*/
