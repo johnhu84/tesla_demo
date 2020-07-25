@@ -64,7 +64,11 @@ function changeCanvas(e) {
 var x1 = [0]
 var y1 = [0]
   var positions = labelPositionOptimizerUsingAreaTesla(Number(lWidth), Number(lHeight), x2.length, x1, y1);
-  drawLabels(x1, y1, x2, y2, positions.width, positions.height, positions.retArr)
+  if (x1.length !== x2.length) {
+    alert("没办法画，试试别的数子")
+  } else {
+    drawLabels(x1, y1, x2, y2, positions.width, positions.height, positions.retArr)
+  }
 }
 
 function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
@@ -1047,7 +1051,7 @@ function lineHelper(x11, y11, x22, y22) {
                 labelH2, count, x1, y1, startPositions);
 
               //call helper function here to see this labelW2 and this labelH2 can fit count number of labels
-              if (containerAreaHelperTesla.res) {
+              if (containerAreaHelperTesla.res && x1.length == count) {//x2.length) {
                 _width = labelW2;
                 _height = labelH2;
                 _retArr = containerAreaHelperTesla.retArr
