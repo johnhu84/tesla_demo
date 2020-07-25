@@ -723,6 +723,14 @@ function lineHelper(x11, y11, x22, y22) {
     function labelPositionOptimizerUsingAreaHelperFirst(labelW, labelH, count, x1, y1, startPositions) {
         var roundRobinULRD = 1;
         var countHelper = 0;
+        var pageScreenWidth = document.getElementById('pageScreen').offsetWidth;
+        var pageScreenHeight = document.getElementById('pageScreen').offsetHeight;
+        var containerWidth = document.getElementById('container').offsetWidth;
+        var containerHeight = document.getElementById('container').offsetHeight;
+        var containerLeft = document.getElementById('container').offsetLeft;
+        //var leftSideWidth = containerLeft - globalObj.spacing.pageSpacingLeftRight;
+        //var rightSideWidth = pageScreenWidth - containerLeft - containerWidth - globalObj.spacing.pageSpacingLeftRight;
+        var containerTop = document.getElementById('container').offsetTop;
         startPositions.up.currentX = startPositions.up.startX;
         startPositions.up.currentY = startPositions.up.startY;
         startPositions.left.currentX = startPositions.left.startX;
@@ -841,74 +849,79 @@ function lineHelper(x11, y11, x22, y22) {
         }
 
         //07/23/2020 this next four if blocks is for centering all the labels within their up|left|right|down blocks
-        /*if (x1Up.length > 0) {
-            var upUsedWidth = (x1Up[x1Up.length - 1] + (labelW * 3)) - x1Up[0];
+        if (x1Up.length > 0) {
+            var upUsedWidth = x1Up[x1Up.length - 1] + labelW - x1Up[0];
+            var upUsedHeight = y1Up[y1Up.length - 1] + labelH - y1Up[0]
             var upMarginX = (pageScreenWidth - upUsedWidth) / 2;
-            var upMarginY = (containerTop - labelH) / 2;
+            var upMarginY = (containerTop - upUsedHeight) / 2;
             upMarginX = isNaN(upMarginX) ? 0 : upMarginX;
             upMarginY = isNaN(upMarginY) ? 0 : upMarginY;
             for (var i = 0; i < x1Up.length; i++) {
                 x1Up[i] = Math.floor(x1Up[i] + upMarginX);
                 y1Up[i] = Math.floor(y1Up[i] + upMarginY);
-                getLabelPositions2HelperObj[x1Up[i] + ',' + y1Up[i]] = 'up';
+                //getLabelPositions2HelperObj[x1Up[i] + ',' + y1Up[i]] = 'up';
             }
         }
 
         if (x1Left.length > 0) {
-            var leftWidth = containerLeft - globalObj.spacing.pageSpacingLeftRight;
+            var leftWidth = containerLeft/* - globalObj.spacing.pageSpacingLeftRight;*/
             var leftHeight = containerHeight;
-            if (!useTheseSides.up) {
+            /*if (!useTheseSides.up) {
                 leftHeight += containerTop;
             }
             if (!useTheseSides.down) {
                 leftHeight += (pageScreenHeight - containerHeight - containerTop);
-            }
-            var leftUsedHeight = (y1Left[y1Left.length - 1] + (labelH * 3)) - y1Left[0];
-            var leftMarginX = (leftWidth - labelW) / 2;
+            }*/
+            var leftUsedHeight = y1Left[y1Left.length - 1] + labelH - y1Left[0];
+            var leftUsedWidth = x1Left[x1Left.length - 1] + labelW - x1Left[0];
+            var leftMarginX = (leftWidth - leftUsedWidth) / 2;
             var leftMarginY = (leftHeight - leftUsedHeight) / 2;
             leftMarginX = isNaN(leftMarginX) ? 0 : leftMarginX;
             leftMarginY = isNaN(leftMarginY) ? 0 : leftMarginY;
             for (var i = 0; i < x1Left.length; i++) {
+                x1Left[i] = Math.floor(x1Left[i] + leftMarginX)
                 y1Left[i] = Math.floor(y1Left[i] + leftMarginY);
-                getLabelPositions2HelperObj[x1Left[i] + ',' + y1Left[i]] = 'left';
+                //getLabelPositions2HelperObj[x1Left[i] + ',' + y1Left[i]] = 'left';
             }
         }
 
         if (x1Right.length > 0) {
-            var rightUsedHeight = (y1Right[y1Right.length - 1] + (labelH * 3)) - y1Right[0];
+            var rightUsedHeight = (y1Right[y1Right.length - 1] + labelH) - y1Right[0];
+            var rightUsedWidth = (x1Right[x1Right.length - 1] + labelW) - x1Right[0];
             var rightHeight = containerHeight;
-            if (!useTheseSides.up) {
+            /*if (!useTheseSides.up) {
                 rightHeight += containerTop;
             }
             if (!useTheseSides.down) {
                 rightHeight += (pageScreenHeight - containerHeight - containerTop);
-            }
-            var rightMarginX = pageScreenWidth - (containerLeft + containerWidth) -
-                (labelW + globalObj.spacing.pageSpacingLeftRight);
+            }*/
+            var rightMarginX = (pageScreenWidth - (containerLeft + containerWidth) -
+                rightUsedWidth) / 2//(labelW)// + globalObj.spacing.pageSpacingLeftRight);
             var rightMarginY = (rightHeight - rightUsedHeight) / 2;
             rightMarginX = isNaN(rightMarginX) ? 0 : rightMarginX;
             rightMarginY = isNaN(rightMarginY) ? 0 : rightMarginY;
             for (var i = 0; i < x1Right.length; i++) {
                 x1Right[i] = Math.floor(x1Right[i] + rightMarginX);
                 y1Right[i] = Math.floor(y1Right[i] + rightMarginY);
-                getLabelPositions2HelperObj[x1Right[i] + ',' + y1Right[i]] = 'right';
+                //getLabelPositions2HelperObj[x1Right[i] + ',' + y1Right[i]] = 'right';
             }
         }
 
         if (x1Down.length > 0) {
             var bottomWidth = pageScreenWidth;
             var bottomHeight = pageScreenHeight - containerHeight - containerTop;
-            var downUsedWidth = (x1Down[x1Down.length - 1] + (labelW * 3)) - x1Down[0];
+            var downUsedWidth = (x1Down[x1Down.length - 1] + labelW) - x1Down[0];
+            var downUsedHeight = (y1Down[y1Down.length - 1] + labelH) - y1Down[0];
             var downMarginX = (bottomWidth - downUsedWidth) / 2;
-            var downMarginY = (bottomHeight - labelH) / 2;
+            var downMarginY = (bottomHeight - downUsedHeight) / 2;
             downMarginX = isNaN(downMarginX) ? 0 : downMarginX;
             downMarginY = isNaN(downMarginY) ? 0 : downMarginY;
             for (var i = 0; i < x1Down.length; i++) {
                 x1Down[i] = Math.floor(x1Down[i] + downMarginX);
                 y1Down[i] = Math.floor(y1Down[i] + downMarginY);
-                getLabelPositions2HelperObj[x1Down[i] + ',' + y1Down[i]] = 'down';
+                //getLabelPositions2HelperObj[x1Down[i] + ',' + y1Down[i]] = 'down';
             }
-        }*/
+        }//*/
         var retArr = {}
         rotateHelper = 0;
         while (x1Up.length > 0 || x1Left.length > 0 || x1Right.length > 0 || x1Down.length > 0) {
