@@ -100,12 +100,16 @@ function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
         //var _y1 = y1[i]
         //the point x, y
         var x = x2[i]
+        x = x < 0?0:x
         var y = y2[i]
+        y = y < 0?0:y
         var _xHelper = lineHelperResult[x+','+y]
         if (_xHelper) {
           var _xHelperArr = _xHelper.split(',')
           var _x1 = _xHelperArr[0]
+          _x1 = _x1<0?0:_x1
           var _y1 = _xHelperArr[1]
+          _y1 = _y1<0?0:_y1
         labelToPointMapperHelper[_x1+','+_y1] = {x:x,y:y}
         pointToLabelMapperHelper[x+','+y] = {x:_x1,y:_y1}
       /*var v1ValueTest = '_x1 (rect): ' + _x1 + ', _y1 (rect): ' + _y1 +
