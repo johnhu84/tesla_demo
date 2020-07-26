@@ -1227,9 +1227,11 @@
                 handles: 'n, e, s, w, ne, nw, sw, se',// disabled: true,
                 resize: function( event, ui ) {
                   var container = document.getElementById('container')
-                    window._camera.aspect = (container.offsetWidth - 40) / (container.offsetHeight - 40);
+                  var canvasElem = document.getElementById('canvas')
+                    /*window._camera.aspect = (container.offsetWidth - 40) / (container.offsetHeight - 40);
                     window._camera.updateProjectionMatrix();
-                    window._renderer.setSize( container.offsetWidth - 40, container.offsetHeight - 40 );
+                    window._renderer.setSize( container.offsetWidth - 40, container.offsetHeight - 40 );*/
+                    resizeCanvas(container.offsetWidth - 40, container.offsetHeight - 40)//$('#canvas').width(), $('#canvas').height())//ui.size.width, ui.size.height);
                     /*var canvasRect = renderer.context.canvas.getBoundingClientRect();
                     var graphContainerRect = document.getElementById('graphContainer').getBoundingClientRect();
                     var topDiff2 = $('#container canvas').offset().top - $('#graphContainer').offset().top;

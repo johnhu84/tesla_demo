@@ -3,6 +3,11 @@ var labelToPointPathHelperObj = {}
 var labelToPointMapperHelper = {}
 var pointToLabelMapperHelper = {}
 var spheres = []
+/*var spheresOriginal = []
+
+$(document).ready(function() {
+  spheresOriginal = getRandomXYZCoordinates(100)
+})*/
 
 function lWidthChange(e) {
 
@@ -41,7 +46,11 @@ function changeCanvas(e) {
       sphere.sphere.position[0] = sphere.sphere.position['x']
       sphere.sphere.position[1] = sphere.sphere.position['y']
       sphere.sphere.position[2] = sphere.sphere.position['z']
-      var _screenXY = _cameraManager._convertWorldPositionToScreenCoord(window._camera, sphere.sphere.position, window._canvasWidth, window._canvasHeight);
+      var canvasElem = document.getElementById('canvas')
+      var _screenXY = _cameraManager._convertWorldPositionToScreenCoord(window._camera, sphere.sphere.position,
+        window._canvasWidth, window._canvasHeight);
+        //canvasElem.offsetWidth, canvasElem.offsetHeight)
+        //window._canvasWidth, window._canvasHeight);
       //var _position = {x: _screenXY.x, y: _screenXY.y}
 
       x2.push(_screenXY[0] + leftDiff3)
@@ -239,6 +248,29 @@ function getRandomXYZCoordinates(lNum) {
     window._scene.add(sphere)
     np.sphere = sphere
     retArr.push(np)
+  }
+  return retArr;
+}
+
+function getRandomXYZCoordinates2(lNum) {
+  var retArr = []
+  for (var i = 0; i < 100; i++) {
+    /*let x = Math.random() * Math.floor(maxXYZ)
+    let y = Math.random() * Math.floor(maxXYZ)
+    let z = Math.random() * Math.floor(maxXYZ)*/
+    //let np = {x: spheresOriginal[i].position.x, y: spheresOriginal[i].position.y, z: spheresOriginal[i].position.z}
+    /*let geometry = new THREE.SphereGeometry(.02, 3, 3)
+    let material = new THREE.MeshBasicMaterial({color: 0x00ff00})
+    var sphere = new THREE.Mesh(geometry, material)
+    sphere.position.set(x, y, z)
+    window._scene.add(sphere)
+    np.sphere = sphere*/
+    if (i < lNum) {
+      retArr.push(spheresOriginal[i])
+      spheresOriginal[i].sphere.visible = true
+    } else {
+      spheresOriginal[i].sphere.visible = false
+    }
   }
   return retArr;
 }
@@ -905,6 +937,11 @@ function lineHelper(x11, y11, x22, y22) {
             for (var i = 0; i < x1Up.length; i++) {
                 x1Up[i] = Math.floor(x1Up[i] + (upMarginX * ((i%upNumOfLabelsPerRow) + 1)));
                 y1Up[i] = Math.floor(y1Up[i] + (upMarginY * (Math.floor(i/upNumOfLabelsPerRow) + 1)));
+                if (x1Up[i] < 0 || y1Up[i] < 0) {
+                  x1 = [0]
+                  y1 = [0]
+                  return false;
+                }
                 //getLabelPositions2HelperObj[x1Up[i] + ',' + y1Up[i]] = 'up';
             }
         }
@@ -931,6 +968,11 @@ function lineHelper(x11, y11, x22, y22) {
                 x1Left[i] = Math.floor(x1Left[i] + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1)))
                 y1Left[i] = Math.floor(y1Left[i] + (leftMarginY * ((i%leftNumOfLabelsPerColumn) + 1)));
                 //getLabelPositions2HelperObj[x1Left[i] + ',' + y1Left[i]] = 'left';
+                if (x1Left[i] < 0 || y1Left[i] < 0) {
+                  x1 = [0]
+                  y1 = [0]
+                  return false;
+                }
             }
         }
 
@@ -957,6 +999,11 @@ function lineHelper(x11, y11, x22, y22) {
                 x1Right[i] = Math.floor(x1Right[i] + (rightMarginX * (Math.floor(i/rightNumOfLabelsPerColumn) + 1)));
                 y1Right[i] = Math.floor(y1Right[i] + (rightMarginY * ((i%rightNumOfLabelsPerColumn) + 1)));
                 //getLabelPositions2HelperObj[x1Right[i] + ',' + y1Right[i]] = 'right';
+                if (x1Right[i] < 0 || y1Right[i] < 0) {
+                  x1 = [0]
+                  y1 = [0]
+                  return false;
+                }
             }
         }
 
@@ -976,6 +1023,11 @@ function lineHelper(x11, y11, x22, y22) {
                 x1Down[i] = Math.floor(x1Down[i] + (downMarginX * ((i%downNumOfLabelsPerRow) + 1)));
                 y1Down[i] = Math.floor(y1Down[i] + (downMarginY * (Math.floor(i/downNumOfLabelsPerRow) + 1)));
                 //getLabelPositions2HelperObj[x1Down[i] + ',' + y1Down[i]] = 'down';
+                if (x1Down[i] < 0 || y1Down[i] < 0) {
+                  x1 = [0]
+                  y1 = [0]
+                  return false;
+                }
             }
         }//*/
         var retArr = {}
