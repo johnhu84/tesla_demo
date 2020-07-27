@@ -27,11 +27,11 @@ function getRandom(m) {
 
 function changeCanvas(e) {
   var lWidth = 400//document.getElementById('lWidth').value
-  var lHeight = 400//document.getElementById('lHeight').value
+  var lHeight = document.getElementById('lHeight').value
   //lWidth = lWidth <= 0?300:lWidth
   //lHeight = lHeight <= 0?300:lHeight
   lWidth = getRandom(lWidth)
-  lHeight = getRandom(lHeight)
+  //lHeight = getRandom(lHeight)
   document.getElementById('lWidth').value = lWidth
   document.getElementById('lHeight').value = lHeight
   var lNum = document.getElementById('lNum').value
