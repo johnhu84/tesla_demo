@@ -21,9 +21,19 @@ function lNumChange(e) {
 
 }
 
+function getRandom(m) {
+  return Math.floor(Math.random()*m)
+}
+
 function changeCanvas(e) {
-  var lWidth = document.getElementById('lWidth').value
-  var lHeight = document.getElementById('lHeight').value
+  var lWidth = 400//document.getElementById('lWidth').value
+  var lHeight = 400//document.getElementById('lHeight').value
+  //lWidth = lWidth <= 0?300:lWidth
+  //lHeight = lHeight <= 0?300:lHeight
+  lWidth = getRandom(lWidth)
+  lHeight = getRandom(lHeight)
+  document.getElementById('lWidth').value = lWidth
+  document.getElementById('lHeight').value = lHeight
   var lNum = document.getElementById('lNum').value
   var containerElm = document.getElementById('container');
   //var containerElm2 = document.getElementById('canvas');
