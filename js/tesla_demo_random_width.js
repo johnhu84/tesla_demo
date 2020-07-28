@@ -1009,30 +1009,36 @@ function lineHelper(x11, y11, x22, y22) {
             //for (var i = 0; i < x1Left.length; i++) {
             for (var i = 0; i < leftNumOfLabelsPerColumn; i++) {
               for (var j = 0; j < leftNumOfColumns; j++) {
+                if (((i * leftNumOfColumns) + j) < x1Left.length) {
                 currentRow = i//i % leftNumOfLabelsPerColumn;
               currentColumn = j//Math.floor(i / leftNumOfLabelsPerColumn)//leftNumOfLabelsPerRow)
               if (currentColumn == 0) {
                 widthBalancer = 0;
                 leftBalance = leftWidth - leftUsedWidth
               }
-                x1Left[(i * leftNumOfLabelsPerColumn) + j] =
-                Math.floor(x1Left[(i * leftNumOfLabelsPerColumn) + j] + widthBalancer)
+                x1Left[(i * leftNumOfColumns) + j] =
+                Math.floor(x1Left[(i * leftNumOfColumns) + j] + widthBalancer)
                   // + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1))) + widthBalancer
-                y1Left[(i * leftNumOfLabelsPerColumn) + j] =
-                Math.floor(y1Left[(i * leftNumOfLabelsPerColumn) + j] + (leftMarginY * ((i%leftNumOfLabelsPerColumn) + 1)));
+
+                /*y1Left[(i * leftNumOfLabelsPerColumn) + j] =
+                Math.floor(y1Left[(i * leftNumOfLabelsPerColumn) + j] +
+                (leftMarginY * (i + 1)))*/
+
+                //((i%leftNumOfLabelsPerColumn) + 1)));
                 var tempRandom = randomBalancer(leftBalance/3)//labelW/2)
                 tempRandom = tempRandom < minW ? minW:tempRandom
                 leftBalance -= (tempRandom + globalObj.spacing.chartSpacingLeftRight + 1)
                 widthBalancer += tempRandom + globalObj.spacing.chartSpacingLeftRight
-                randomWidthMapper[x1Left[(i * leftNumOfLabelsPerColumn) + j]+','+y1Left[(i * leftNumOfLabelsPerColumn) + j]] =
+                randomWidthMapper[x1Left[(i * leftNumOfColumns) + j]+','+y1Left[(i * leftNumOfColumns) + j]] =
                 (labelW + tempRandom)
                 //getLabelPositions2HelperObj[x1Left[i] + ',' + y1Left[i]] = 'left';
-                if (x1Left[(i * leftNumOfLabelsPerColumn) + j] < 0 || y1Left[(i * leftNumOfLabelsPerColumn) + j] < 0
+                if (x1Left[(i * leftNumOfColumns) + j] < 0 || y1Left[(i * leftNumOfColumns) + j] < 0
                 //|| x1Left[(i * leftNumOfLabelsPerColumn) + j] +
                 ) {
                   x1 = [0]
                   y1 = [0]
                   return false;
+                }
                 }
               }
             }
@@ -1239,7 +1245,13 @@ function lineHelper(x11, y11, x22, y22) {
                 labelH3, count, x1, y1, startPositions);
 
               //call helper function here to see this labelW2 and this labelH2 can fit count number of labels
-              if (containerAreaHelperTesla.res && x1.length == count) {//x2.length) {
+              if (containerAreaHelperTesla.res && x1.length > count) {//x2.length) {
+                while (x1.length > count) {
+                  x1.pop()
+                }
+                while (y1.length > count) {
+                  y1.pop()
+                }
                 _width = labelW3;
                 _height = labelH3;
                 _retArr = containerAreaHelperTesla.retArr
