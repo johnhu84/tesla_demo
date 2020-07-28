@@ -27,11 +27,11 @@ function getRandom(m) {
 }
 
 function changeCanvas(e) {
-  var lWidth = 400//document.getElementById('lWidth').value
+  var lWidth = 10//document.getElementById('lWidth').value
   var lHeight = document.getElementById('lHeight').value
   //lWidth = lWidth <= 0?300:lWidth
   //lHeight = lHeight <= 0?300:lHeight
-  lWidth = getRandom(lWidth)
+  //lWidth = getRandom(lWidth)
   //lHeight = getRandom(lHeight)
   document.getElementById('lWidth').value = lWidth
   document.getElementById('lHeight').value = lHeight
@@ -776,6 +776,7 @@ function lineHelper(x11, y11, x22, y22) {
     function labelPositionOptimizerUsingAreaHelperFirst(labelW, labelH, count, x1, y1, startPositions) {
         var roundRobinULRD = 1;
         var countHelper = 0;
+        const minW = 10
         var pageScreenWidth = document.getElementById('pageScreen').offsetWidth;
         var pageScreenHeight = document.getElementById('pageScreen').offsetHeight;
         var containerWidth = document.getElementById('container').offsetWidth;
@@ -963,7 +964,8 @@ function lineHelper(x11, y11, x22, y22) {
                   //(upMarginX * ((i%upNumOfLabelsPerRow) + 1))) + widthBalancer;
                 y1Up[i] = Math.floor(y1Up[i] + (upMarginY * (Math.floor(i/upNumOfLabelsPerRow) + 1)));
                 //if (i == upNumOfLabelsPerRow)
-                var tempRandom = randomBalancer(upBalance)//labelW/2)
+                var tempRandom = randomBalancer(upBalance/3)//labelW/2)
+                tempRandom = tempRandom < minW ? minW:tempRandom
                 upBalance -= (tempRandom + globalObj.spacing.chartSpacingLeftRight + 1)
                 widthBalancer += tempRandom + globalObj.spacing.chartSpacingLeftRight
 
@@ -996,6 +998,7 @@ function lineHelper(x11, y11, x22, y22) {
             var leftUsedWidth = x1Left[x1Left.length - 1] +
             (labelW + globalObj.spacing.chartSpacingLeftRight) - x1Left[0];
             var leftBalance = leftWidth - leftUsedWidth
+            leftBalance -= (leftNumOfColumns * globalObj.spacing.chartSpacingLeftRight)
             var leftMarginX = (leftWidth - leftUsedWidth) / (leftNumOfColumns + 1)// / 2;
             var leftMarginY = (leftHeight - leftUsedHeight) / (leftNumOfLabelsPerColumn + 1)//2;
             leftMarginX = isNaN(leftMarginX) ? 0 : leftMarginX;
@@ -1003,26 +1006,35 @@ function lineHelper(x11, y11, x22, y22) {
             var currentRow = 0;
             var currentColumn = 0;
             var widthBalancer = 0;
-            for (var i = 0; i < x1Left.length; i++) {
-              currentRow = i % leftNumOfLabelsPerColumn;
-              currentColumn = Math.floor(i / leftNumOfLabelsPerColumn)//leftNumOfLabelsPerRow)
+            //for (var i = 0; i < x1Left.length; i++) {
+            for (var i = 0; i < leftNumOfLabelsPerColumn; i++) {
+              for (var j = 0; j < leftNumOfColumns; j++) {
+                currentRow = i//i % leftNumOfLabelsPerColumn;
+              currentColumn = j//Math.floor(i / leftNumOfLabelsPerColumn)//leftNumOfLabelsPerRow)
               if (currentColumn == 0) {
                 widthBalancer = 0;
                 leftBalance = leftWidth - leftUsedWidth
               }
-                x1Left[i] = Math.floor(x1Left[i] + widthBalancer)
+                x1Left[(i * leftNumOfLabelsPerColumn) + j] =
+                Math.floor(x1Left[(i * leftNumOfLabelsPerColumn) + j] + widthBalancer)
                   // + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1))) + widthBalancer
-                y1Left[i] = Math.floor(y1Left[i] + (leftMarginY * ((i%leftNumOfLabelsPerColumn) + 1)));
-                var tempRandom = randomBalancer(leftBalance)//labelW/2)
+                y1Left[(i * leftNumOfLabelsPerColumn) + j] =
+                Math.floor(y1Left[(i * leftNumOfLabelsPerColumn) + j] + (leftMarginY * ((i%leftNumOfLabelsPerColumn) + 1)));
+                var tempRandom = randomBalancer(leftBalance/3)//labelW/2)
+                tempRandom = tempRandom < minW ? minW:tempRandom
                 leftBalance -= (tempRandom + globalObj.spacing.chartSpacingLeftRight + 1)
                 widthBalancer += tempRandom + globalObj.spacing.chartSpacingLeftRight
-                randomWidthMapper[x1Left[i]+','+y1Left[i]] = (labelW + tempRandom)
+                randomWidthMapper[x1Left[(i * leftNumOfLabelsPerColumn) + j]+','+y1Left[(i * leftNumOfLabelsPerColumn) + j]] =
+                (labelW + tempRandom)
                 //getLabelPositions2HelperObj[x1Left[i] + ',' + y1Left[i]] = 'left';
-                if (x1Left[i] < 0 || y1Left[i] < 0) {
+                if (x1Left[(i * leftNumOfLabelsPerColumn) + j] < 0 || y1Left[(i * leftNumOfLabelsPerColumn) + j] < 0
+                //|| x1Left[(i * leftNumOfLabelsPerColumn) + j] +
+                ) {
                   x1 = [0]
                   y1 = [0]
                   return false;
                 }
+              }
             }
         }
 
@@ -1063,7 +1075,8 @@ function lineHelper(x11, y11, x22, y22) {
                 y1Right[i] = Math.floor(y1Right[i] + (rightMarginY * ((i%rightNumOfLabelsPerColumn) + 1)));
                 //getLabelPositions2HelperObj[x1Right[i] + ',' + y1Right[i]] = 'right';
                 //if (i == rightNumOfLabelsPerRow)
-                var tempRandom = randomBalancer(rightBalance)//labelW/2)
+                var tempRandom = randomBalancer(rightBalance/3)//labelW/2)
+                tempRandom = tempRandom < minW ? minW:tempRandom
                 rightBalance -= (tempRandom + globalObj.spacing.chartSpacingLeftRight + 1)
                 widthBalancer += tempRandom + globalObj.spacing.chartSpacingLeftRight
                 randomWidthMapper[x1Right[i]+','+y1Right[i]] = (labelW + tempRandom)
@@ -1103,7 +1116,8 @@ function lineHelper(x11, y11, x22, y22) {
                 //widthBalancer;
                 y1Down[i] = Math.floor(y1Down[i] + (downMarginY * (Math.floor(i/downNumOfLabelsPerRow) + 1)));
                 //getLabelPositions2HelperObj[x1Down[i] + ',' + y1Down[i]] = 'down';
-                var tempRandom = randomBalancer(downBalance)//labelW/2)
+                var tempRandom = randomBalancer(downBalance/3)//labelW/2)
+                tempRandom = tempRandom < minW ? minW:tempRandom
                 downBalance -= (tempRandom + globalObj.spacing.chartSpacingLeftRight + 1)
                 widthBalancer += tempRandom + globalObj.spacing.chartSpacingLeftRight
                 randomWidthMapper[x1Down[i]+','+y1Down[i]] = (labelW + tempRandom)
@@ -1176,14 +1190,19 @@ function lineHelper(x11, y11, x22, y22) {
         var widthGreaterThanHeight = labelW > labelH;
         var _width = minW;
         var _height = minH;
-        var maximumArea = getMaximumAreaPerLabel(labelW, labelH, count)
+        /*var maximumArea = getMaximumAreaPerLabel(labelW, labelH, count)
         var startingLabelWidthAndHeight = getStartingLabelWidthAndHeight(maximumArea, labelW, labelH, count)
         var labelW2 = startingLabelWidthAndHeight.labelW > labelW ? labelW:startingLabelWidthAndHeight.labelW
-        var labelH2 = startingLabelWidthAndHeight.labelH > labelH ? labelH:startingLabelWidthAndHeight.labelH
+        var labelH2 = startingLabelWidthAndHeight.labelH > labelH ? labelH:startingLabelWidthAndHeight.labelH*/
+        var labelW2 = labelW
+        var labelH2 = labelH
         labelW2 = labelW2 < minW?minW:labelW2
         labelH2 = labelH2 < minH?minH:labelH2
+        //var labelW3 = minW
+        var labelH3 = labelH
+        var labelW3 = Math.floor(labelH3 * labelR);
         var _retArr = []
-        while (labelW2 >= minW && labelH2 >= minH) {
+        /*while (labelW2 >= minW && labelH2 >= minH) {
             if (widthGreaterThanHeight) {
                 labelH2 = labelH2 - 1;
                 labelW2 = Math.floor(labelH2 * labelR);
@@ -1204,8 +1223,30 @@ function lineHelper(x11, y11, x22, y22) {
                 break;
               }
             //}
-        }
+        }*/
+        //while (labelW2 >= minW && labelH2 >= minH) {
+        while (labelW3 >= minW && labelH3 >= minH) {
+            if (widthGreaterThanHeight) {
+                labelH3 = labelH3 - 1;
+                labelW3 = Math.floor(labelH3 * labelR);
+            } else {
+                labelW3= labelW3 - 1;
+                labelH3 = Math.floor(labelW3 / labelR);
+            }
+            //if ((labelW2 * labelH2 * count) < maximumArea) {
+              var startPositions = labelPositionOptimizerGetStartPositions(labelW3, labelH3, count, x1, y1)
+              var containerAreaHelperTesla = labelPositionOptimizerUsingAreaHelperFirst(labelW3,
+                labelH3, count, x1, y1, startPositions);
 
+              //call helper function here to see this labelW2 and this labelH2 can fit count number of labels
+              if (containerAreaHelperTesla.res && x1.length == count) {//x2.length) {
+                _width = labelW3;
+                _height = labelH3;
+                _retArr = containerAreaHelperTesla.retArr
+                break;
+              }
+            //}
+        }
         return {
             width: _width,
             height: _height,
