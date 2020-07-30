@@ -7,8 +7,11 @@ var labelToPointMapperHelper = {}
 var pointToLabelMapperHelper = {}
 
 var randomWidthMapper = {}
-
+var labelActualXYToDrawnXY = {}
+var ulrdMapper = {}
+var sphereXYToLabelXY = {}
 var spheres = []
+var officialHeight = 0;
 
 /*var spheresOriginal = []
 
@@ -55,33 +58,19 @@ function getRandom(m) {
 
 
 function changeCanvas(e) {
-
   var lWidth = 10//document.getElementById('lWidth').value
-
+  randomWidthMapper = {}
+  labelActualXYToDrawnXY = {}
+  sphereXYToLabelXY = {}
+  ulrdMapper = {}
   var lHeight = document.getElementById('lHeight').value
-
-  //lWidth = lWidth <= 0?300:lWidth
-
-  //lHeight = lHeight <= 0?300:lHeight
-
-  //lWidth = getRandom(lWidth)
-
-  //lHeight = getRandom(lHeight)
-
   document.getElementById('lWidth').value = lWidth
-
   document.getElementById('lHeight').value = lHeight
-
   var lNum = document.getElementById('lNum').value
 
   var containerElm = document.getElementById('container');
 
-  //var containerElm2 = document.getElementById('canvas');
-
   var graphContainerElm = document.getElementById('graphContainer');
-
-
-
   var topDiff3 = containerElm.offsetTop - graphContainerElm.offsetTop + 20;
 
   var leftDiff3 = containerElm.offsetLeft - graphContainerElm.offsetLeft + 20;
@@ -109,58 +98,15 @@ function changeCanvas(e) {
       // 显示标签对应的测点
 
       var _cameraManager = new THREE._CameraManager();
-
       sphere.sphere.position[0] = sphere.sphere.position['x']
-
       sphere.sphere.position[1] = sphere.sphere.position['y']
-
       sphere.sphere.position[2] = sphere.sphere.position['z']
-
       var canvasElem = document.getElementById('canvas')
-
       var _screenXY = _cameraManager._convertWorldPositionToScreenCoord(window._camera, sphere.sphere.position,
-
         window._canvasWidth, window._canvasHeight);
 
-        //canvasElem.offsetWidth, canvasElem.offsetHeight)
-
-        //window._canvasWidth, window._canvasHeight);
-
-      //var _position = {x: _screenXY.x, y: _screenXY.y}
-
-
-
       x2.push(_screenXY[0] + leftDiff3)
-
       y2.push(_screenXY[1] + topDiff3)
-
-
-
-      //vertex.visible = true;
-
-      //vertex.scale.set(3, 3, 3);
-
-      //var vertexPosition = [vertex.position.x, vertex.position.y, vertex.position.z]
-
-
-
-      /*var accuratePos2 = _cameraManager._convertWorldPositionToScreenCoord(window._camera, vertexPosition, window._canvasWidth, window._canvasHeight);
-
-      var accuratePos = getAccurateScreenPosition2(vertex);
-
-      var msgPos = { x: accuratePos2[0] + leftDiff3, y: accuratePos2[1] + topDiff3 };
-
-      if (typeof duplicateCacheChecker[msgPos.x + ',' + msgPos.y] === 'undefined') {
-
-          duplicateCacheChecker[msgPos.x + ',' + msgPos.y] = true;
-
-          x2.push(msgPos.x);
-
-          y2.push(msgPos.y);
-
-          z2.push(vertex.onePoints);
-
-      }*/
 
   });
 
@@ -169,7 +115,7 @@ var x1 = [0]
 var y1 = [0]
 
   var positions = labelPositionOptimizerUsingAreaTesla(Number(lWidth), Number(lHeight), x2.length, x1, y1);
-
+  officialHeight = positions.height
   if (x1.length !== x2.length) {
 
     alert("没办法画，试试别的数子")
@@ -184,11 +130,9 @@ var y1 = [0]
 
 
 
+//x2 and y2 are sphere position arrays
 function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
-
   console.log('drawLabels...')
-
-
 
   labelToPointPathHelperObj = retArr
 
@@ -208,37 +152,51 @@ function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
 
       var vertices = []
 
-      /*var cell = new mxCell('your text', new mxGeometry(0, 0, 50, 50), 'curved=1;endArrow=classic;html=1;');
-
-      cell.geometry.setTerminalPoint(new mxPoint(50, 150), true);
-
-      cell.geometry.setTerminalPoint(new mxPoint(150, 50), false);
-
-
-
-      cell.geometry.relative = true;
-
-      cell.edge = true;
-
-
-
-      cell = graph.addCell(cell);
-
-      edges.push(cell)*/
-
-      var lineHelperResult = lineHelper(x1, y1, x2, y2)
-
+      var x3 = copyNumberArray(x1)
+      var y3 = copyNumberArray(y1)
+      var threeToOneMapper = {}
+      //fix up/down/left/right "midpoints"
       for (var i = 1; i < x1.length; i++) {
+        var udlr = retArr[x1[i]+','+y1[i]]
+        ulrdMapper[x1[i]+','+y1[i]] = udlr
+        var w = randomWidthMapper[x1[i]+','+y1[i]]
+        w = w?w:lWidth
+        switch (udlr) {
+          case 'up':
+            //get bottom middle point
+            x3[i] += (w/2)
+            y3[i] += lHeight
+            ulrdMapper[x3[i]+','+y3[i]] = 'up'
+            break;
+          case 'left':
+            //get right middle point
+            x3[i] += w;
+            y3[i] += (lHeight/2)
+            ulrdMapper[x3[i]+','+y3[i]] = 'left'
+            break;
+          case 'right':
+            y3[i] += (lHeight/2)
+            ulrdMapper[x3[i]+','+y3[i]] = 'right'
+            break;
+          case 'down':
+            x3[i] += (w/2)
+            ulrdMapper[x3[i]+','+y3[i]] = 'down'
+            break;
+          default:
+
+            break;
+        }
+
+        //randomWidthMapper[x3[i]+','+y3[i]] = w
+        threeToOneMapper[x3[i]+','+y3[i]] = {x: x1[i], y: y1[i]}
+        labelActualXYToDrawnXY[x1[i]+','+y1[i]] = {x: x3[i], y: y3[i]}
+      }
+
+      var lineHelperResult = lineHelper(x3, y3, x2, y2)
+
+      for (var i = 1; i < x2.length; i++) {
 
         var f_label = "f_label" + i
-
-        //the label x, y
-
-        //var _x1 = x1[i]
-
-        //var _y1 = y1[i]
-
-        //the point x, y
 
         var x = x2[i]
 
@@ -253,7 +211,8 @@ function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
         if (_xHelper) {
 
           var _xHelperArr = _xHelper.split(',')
-
+          //use _x1 and _y1 here, check up threeToOneMapper, that should give the {x:y} of top left x y
+          //of the label
           var _x1 = _xHelperArr[0]
 
           _x1 = _x1<0?0:_x1
@@ -261,68 +220,22 @@ function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
           var _y1 = _xHelperArr[1]
 
           _y1 = _y1<0?0:_y1
-
+          var threeToOneMapperHelper = threeToOneMapper[_x1+','+_y1]
+          sphereXYToLabelXY[x+','+y] = threeToOneMapperHelper
         labelToPointMapperHelper[_x1+','+_y1] = {x:x,y:y}
 
         pointToLabelMapperHelper[x+','+y] = {x:_x1,y:_y1}
 
-      /*var v1ValueTest = '_x1 (rect): ' + _x1 + ', _y1 (rect): ' + _y1 +
-
-      ', x: ' + x + ', y: ' + y;*/
-
-      var tempLWidth = randomWidthMapper[_x1+','+_y1]
+      var realXY = threeToOneMapper[_x1+','+_y1]
+      var tempLWidth = randomWidthMapper[realXY.x+','+realXY.y]
 
       tempLWidth = typeof tempLWidth === 'undefined' ? lWidth:tempLWidth
 
       //var v1Value = '<div style="width:'+lWidth+'px;height:'+lHeight+'px;border: 1px solid black;"></div>'
 
       var v1Value = '<div style="width:'+tempLWidth+'px;height:'+lHeight+'px;border: 1px solid black;"></div>'
-
-      //var len = res.points.length;
-
-      //var tableMargin = '';
-
-
-
-      //for testing
-
-      //var _temp = 'margin-right: '+globalObj.spacing.chartSpacingLeftRight+'px;';
-
-      /*v1Value += "<div class='svg-table' " +
-
-          "style='margin-top:20px;display:inline-block;border: " + handsonTableBorderStyle +
-
-          ";background-color: #fff;" + _temp +"'>" + v1ValueTest + "</div>"*/
-
-
-
-      /*res.points.forEach(function (item, i) {
-
-          // 最后一个table不需要间隔
-
-          // var _temp = i < len - 1 ? tableMargin : '';
-
-          var _temp = 'margin-right: '+globalObj.spacing.chartSpacingLeftRight+'px;';
-
-          v1Value += "<div class='svg-table' data-dir='" + item.fx + "' " +
-
-              "style='display:inline-block;border: " + handsonTableBorderStyle +
-
-              ";background-color: #fff;" + _temp +"'>" + hTableHtml[i] + "</div>"
-
-      });*/
-
-
-
-      var v1 = graph.insertVertex(parent, f_label, v1Value, _x1, _y1, tempLWidth, lHeight, 'text;html=1;overflow=fill;fillColor=white;textOpacity:50');
-
-      //existingVertices is for the functionality "应用到“
-
-      //globalObj.existingVertices.push(v1);
-
-
-
-      // canvas测点坐标
+      var v1 = graph.insertVertex(parent, f_label, v1Value, realXY.x, realXY.y, tempLWidth, lHeight,
+        'text;html=1;overflow=fill;fillColor=white;textOpacity:50');
 
       var v2 = graph.insertVertex(parent, f_label + "point2", '', x, y, 0, 0, 'overflow=fill;fillColor=none;fontColor=#000000;');
 
@@ -344,12 +257,6 @@ function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
 
         graph.orderCells(false, vertices)
 
-      /*globalObj.cache[globalObjIndex].edge = e1;
-
-      globalObj.cache[globalObjIndex].v1 = v1;
-
-      globalObj.cache[globalObjIndex].v2 = v2;*/
-
   } finally {
 
       graph.getModel().endUpdate();
@@ -358,7 +265,127 @@ function drawLabels(x1, y1, x2, y2, lWidth, lHeight, retArr) {
 
 }
 
+function isUlrd(x, y) {
+  var pageScreenWidth = document.getElementById('pageScreen').offsetWidth;
+  var pageScreenHeight = document.getElementById('pageScreen').offsetHeight;
+  var containerWidth = document.getElementById('container').offsetWidth;
+  var containerHeight = document.getElementById('container').offsetHeight;
+  var containerLeft = document.getElementById('container').offsetLeft;
+  var containerTop = document.getElementById('container').offsetTop;
+  if (y < containerTop) {
+    return "up"
+  }
+  if (y > (containerTop + containerHeight)) {
+    return "down"
+  }
+  if (x < containerLeft) {
+    return "left"
+  }
+  if (x > (containerLeft + containerWidth)) {
+    return "right"
+  }
+  return false
+}
 
+//sphereXYToLabelXY
+function getActualXYBySphereXY(x, y) {
+  //check if p1x and p1y or p2x and p2y are in randomWidthMapper by checking if x and y are in
+  //rectangle there
+  //then check ulrdMapper if it is up/left/right/down
+  //then using width from randomWidthMapper, calculate the actually drawn label x and y
+
+  h = officialHeight
+  var sphereXYToLabelXYHelper = sphereXYToLabelXY[x+','+y]
+    var _x = sphereXYToLabelXYHelper.x
+    var _y = sphereXYToLabelXYHelper.y
+    //_x = Number(_x)
+    //_y = Number(_y)
+    var w = randomWidthMapper[_x+','+_y]
+    //if (isPointInRectangle(x, y, Number(_x), Number(_y), w, Number(h))) {
+      //var ulrdMapperHelper = ulrdMapper[_x + ',' + _y]
+      var ulrdMapperHelper = isUlrd(_x, _y)
+      if (ulrdMapperHelper) {
+        var retXY = {}
+        //get actual x and y then return it
+        switch (ulrdMapperHelper) {
+          case "up":
+            retXY.x = Number(_x) + Number(w/2)
+            retXY.y = Number(_y) + Number(h)
+            break;
+          case "left":
+            retXY.x = Number(_x) + Number(w)
+            retXY.y = Number(_y) + Number(h/2)
+            break;
+          case "right":
+            retXY.x = _x
+            retXY.y = _y + (h/2)
+            break;
+          case "down":
+            retXY.x = _x + (w/2)
+            retXY.y = _y
+            break;
+          default:
+            break;
+        }
+        return retXY
+      }
+    //}
+  //}
+  return false
+}
+
+function getActualXY(x, y) {
+  //check if p1x and p1y or p2x and p2y are in randomWidthMapper by checking if x and y are in
+  //rectangle there
+  //then check ulrdMapper if it is up/left/right/down
+  //then using width from randomWidthMapper, calculate the actually drawn label x and y
+
+  //what's the height?
+  var h = document.getElementById('lNum').value
+  h = Number(h)
+  for (var i in randomWidthMapper) {
+    var iHelper = i.split(',')
+    var _x = iHelper[0]
+    var _y = iHelper[1]
+    _x = Number(_x)
+    _y = Number(_y)
+    var w = randomWidthMapper[i]
+    if (isPointInRectangle(x, y, Number(_x), Number(_y), w, Number(h))) {
+      //var ulrdMapperHelper = ulrdMapper[_x + ',' + _y]
+      var ulrdMapperHelper = isUlrd(_x, _y)
+      if (ulrdMapperHelper) {
+        var retXY = {}
+        //get actual x and y then return it
+        switch (ulrdMapperHelper) {
+          case "up":
+            retXY.x = Number(_x) + Number(w/2)
+            retXY.y = Number(_y) + Number(h)
+            break;
+          case "left":
+            retXY.x = Number(_x) + Number(w)
+            retXY.y = Number(_y) + Number(h/2)
+            break;
+          case "right":
+            retXY.x = _x
+            retXY.y = _y + (h/2)
+            break;
+          case "down":
+            retXY.x = _x + (w/2)
+            retXY.y = _y
+            break;
+          default:
+            break;
+        }
+        return retXY
+      }
+    }
+  }
+  return false
+}
+
+function isPointInRectangle(x, y, x2, y2, w, h) {
+  return x2 <= x && x <= x2 + w && y2 <= y && y <= y2 + h
+}
 
 function findEdgeRouterPoints(srcX, srcY, destX, destY) {
 
@@ -1213,25 +1240,15 @@ function lineHelper(x11, y11, x22, y22) {
 
 
     function labelPositionOptimizerUsingAreaHelperTesla(labelW, labelH, count, x1, y1, startPositions) {
-
         var roundRobinULRD = 1;
-
         var countHelper = 0;
-
         startPositions.up.currentX = startPositions.up.startX;
-
         startPositions.up.currentY = startPositions.up.startY;
-
         startPositions.left.currentX = startPositions.left.startX;
-
         startPositions.left.currentY = startPositions.left.startY;
-
         startPositions.right.currentX = startPositions.right.startX;
-
         startPositions.right.currentY = startPositions.right.startY;
-
         startPositions.down.currentX = startPositions.down.startX;
-
         startPositions.down.currentY = startPositions.down.startY;
 
         var x1Up = [];
@@ -1565,13 +1582,9 @@ function lineHelper(x11, y11, x22, y22) {
         const minW = 10
 
         var pageScreenWidth = document.getElementById('pageScreen').offsetWidth;
-
         var pageScreenHeight = document.getElementById('pageScreen').offsetHeight;
-
         var containerWidth = document.getElementById('container').offsetWidth;
-
-       var containerHeight = document.getElementById('container').offsetHeight;
-
+        var containerHeight = document.getElementById('container').offsetHeight;
         var containerLeft = document.getElementById('container').offsetLeft;
 
         //var leftSideWidth = containerLeft - globalObj.spacing.pageSpacingLeftRight;
@@ -1616,25 +1629,25 @@ function lineHelper(x11, y11, x22, y22) {
 
         var upNumOfLabelsPerRowCount = true
 
-        var upNumOfRows = 1
+        var upNumOfRows = 0
 
         var leftNumOfLabelsPerColumn = 0
 
         var leftNumOfLabelsPerColumnCount = true
 
-        var leftNumOfColumns = 1
+        var leftNumOfColumns = 0
 
         var rightNumOfLabelsPerColumn = 0
 
         var rightNumOfLabelsPerColumnCount = true
 
-        var rightNumOfColumns = 1
+        var rightNumOfColumns = 0
 
         var downNumOfLabelsPerRow = 0
 
         var downNumOfLabelsPerRowCount = true
 
-        var downNumOfRows = 1
+        var downNumOfRows = 0
 
         //chartSpacingUpDown: 5,
 
@@ -1886,8 +1899,6 @@ function lineHelper(x11, y11, x22, y22) {
 
         }
 
-
-
         //07/23/2020 this next four if blocks is for centering all the labels within their up|left|right|down blocks
 
         if (x1Up.length > 0) {
@@ -1896,11 +1907,7 @@ function lineHelper(x11, y11, x22, y22) {
 
             (labelW + globalObj.spacing.chartSpacingLeftRight) - x1Up[0];
 
-            //x1Up[x1Up.length - 1] + labelW - x1Up[0];
-
             var upUsedHeight = y1Up[y1Up.length - 1] + (labelH + globalObj.spacing.chartSpacingUpDown) - y1Up[0]
-
-            //y1Up[y1Up.length - 1] + labelH - y1Up[0]
 
             var upBalance = (pageScreenWidth - upUsedWidth) -
 
@@ -1908,11 +1915,7 @@ function lineHelper(x11, y11, x22, y22) {
 
             var upMarginX = (pageScreenWidth - upUsedWidth) / (upNumOfLabelsPerRow + 1)
 
-            //(pageScreenWidth - upUsedWidth) / 2;
-
             var upMarginY = (containerTop - upUsedHeight) / (upNumOfRows + 1)
-
-            //(containerTop - upUsedHeight) / 2;
 
             upMarginX = isNaN(upMarginX) ? 0 : upMarginX;
 
@@ -1936,20 +1939,10 @@ function lineHelper(x11, y11, x22, y22) {
 
                 upBalance = (pageScreenWidth - upUsedWidth) -
 
-                  (upNumOfLabelsPerRow * globalObj.spacing.chartSpacingLeftRight)//)
+                  (upNumOfLabelsPerRow * globalObj.spacing.chartSpacingLeftRight)
 
-              }// else {
-
-                //upBalance = pageScreenWidth - Math.floor(x1Up[i] + widthBalancer) + labelW
-
-              //}
-
-
+              }
                 x1Up[i] = Math.floor(x1Up[i] + widthBalancer)
-
-                  //(upMarginX * ((i%upNumOfLabelsPerRow) + 1))) + widthBalancer;
-
-                y1Up[i] = Math.floor(y1Up[i] + (upMarginY * (Math.floor(i/upNumOfLabelsPerRow) + 1)));
 
                 if (x1Up[i] > startPositions.up.endX ||
                   upBalance < 0 || isNaN(x1Up[i]) || isNaN(y1Up[i]) || x1Up[i] < 0 || y1Up[i] < 0) {
@@ -1962,20 +1955,6 @@ function lineHelper(x11, y11, x22, y22) {
 
                 }
 
-                //if (i == upNumOfLabelsPerRow)
-
-
-
-                //var tempRandom = currentColumn == (upNumOfLabelsPerRow - 1)?
-
-                //pageScreenWidth - Math.floor(x1Up[i] + widthBalancer) + labelW:
-
-                //upBalance-globalObj.spacing.chartSpacingLeftRight:
-
-                //randomBalancer(upBalance/(upNumOfLabelsPerRow - i))//(upBalance*2)/upNumOfLabelsPerRow)//labelW/2)
-
-
-
                 var tempRandom = randomBalancer(upBalance/(upNumOfLabelsPerRow - i))
                 tempRandom = startPositions.up.endX < x1Up[i] + tempRandom + labelW +
                 globalObj.spacing.chartSpacingLeftRight?
@@ -1984,20 +1963,9 @@ function lineHelper(x11, y11, x22, y22) {
 
                 tempRandom = tempRandom < minW ? minW:tempRandom
 
-                upBalance -= (tempRandom)// + globalObj.spacing.chartSpacingLeftRight + 1)
+                upBalance -= (tempRandom)
 
-                widthBalancer += tempRandom// + globalObj.spacing.chartSpacingLeftRight
-
-
-
-                //if (currentColumn == (upNumOfLabelsPerRow - 1)) {
-
-                  //tempRandom = widthBalancer - (pageScreenWidth - upUsedWidth)
-
-                //}
-
-
-
+                widthBalancer += tempRandom
                 randomWidthMapper[x1Up[i]+','+y1Up[i]] = (labelW + tempRandom)
 
 
@@ -2006,8 +1974,6 @@ function lineHelper(x11, y11, x22, y22) {
             }
 
         }
-
-
 
         if (x1Left.length > 0) {
 
@@ -2059,7 +2025,7 @@ function lineHelper(x11, y11, x22, y22) {
 
             for (var i = 0; i < leftNumOfLabelsPerColumn; i++) {
 
-              for (var j = 0; j < leftNumOfColumns; j++) {
+              for (var j = 0; j <= leftNumOfColumns; j++) {
 
                 if (((j * leftNumOfLabelsPerColumn) + i) < x1Left.length) {
 
@@ -2081,15 +2047,24 @@ function lineHelper(x11, y11, x22, y22) {
 
                 Math.floor(x1Left[(j * leftNumOfLabelsPerColumn) + i] + widthBalancer)
 
+                if (j > 1 && (x1Left[(j * leftNumOfLabelsPerColumn) + i] <=
+                x1Left[((j - 1) * leftNumOfLabelsPerColumn) + i])) {
+                  var tempWidthHelper = randomWidthMapper[x1Left[((j - 1) * leftNumOfLabelsPerColumn) + i]+','+
+                  y1Left[((j - 1) * leftNumOfLabelsPerColumn) + i]]
+                  tempWidthHelper = tempWidthHelper?tempWidthHelper:lWidth
+                  x1Left[(j * leftNumOfLabelsPerColumn) + i] = x1Left[((j - 1) * leftNumOfLabelsPerColumn) + i] +
+                  tempWidthHelper + globalObj.spacing.chartSpacingLeftRight
+                }
+
                   // + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1))) + widthBalancer
 
 
 
-                y1Left[(j * leftNumOfLabelsPerColumn) + i] =
+                /*y1Left[(j * leftNumOfLabelsPerColumn) + i] =
 
                 Math.floor(y1Left[(j * leftNumOfLabelsPerColumn) + i] +
 
-                (leftMarginY * (i + 1)))
+                (leftMarginY * (i + 1)))*/
 
                 if (x1Left[(j * leftNumOfLabelsPerColumn) + i] > startPositions.left.endX ||
                 leftBalance < 0 || isNaN(y1Left[(j * leftNumOfLabelsPerColumn) + i]) ||
@@ -2145,14 +2120,6 @@ function lineHelper(x11, y11, x22, y22) {
 
               globalObj.spacing.chartSpacingUpDown) - y1Right[0];
 
-            //(y1Right[y1Right.length - 1] + labelH) - y1Right[0];
-
-
-
-            //var rightUsedWidth = (x1Right[x1Right.length - 1] + labelW +
-
-              //globalObj.spacing.chartSpacingLeftRight) - x1Right[0];
-
               var rightUsedWidth = (x1Right[(rightNumOfLabelsPerColumn) - 1] + labelW +
 
                 globalObj.spacing.chartSpacingLeftRight) - x1Right[0];
@@ -2161,22 +2128,9 @@ function lineHelper(x11, y11, x22, y22) {
 
             var rightHeight = containerHeight;
 
-            //if (!useTheseSides.up) {
-
-                //rightHeight += containerTop;
-
-            //}
-
-            //if (!useTheseSides.down) {
-
-                //rightHeight += (pageScreenHeight - containerHeight - containerTop);
-
-            //}
-
             var rightWidth = pageScreenWidth - (containerLeft + containerWidth)
 
             var rightMarginX = (pageScreenWidth - (containerLeft + containerWidth) -
-
                 rightUsedWidth) / (rightNumOfColumns + 1)//2
 
             var rightBalance = rightWidth - rightUsedWidth -
@@ -2199,7 +2153,7 @@ function lineHelper(x11, y11, x22, y22) {
 
             for (var i = 0; i < rightNumOfLabelsPerColumn; i++) {
 
-              for (var j = 0; j < rightNumOfColumns; j++) {
+              for (var j = 0; j <= rightNumOfColumns; j++) {
 
                 if (((j * rightNumOfLabelsPerColumn) + i) < x1Right.length) {
 
@@ -2221,21 +2175,18 @@ function lineHelper(x11, y11, x22, y22) {
 
                 Math.floor(x1Right[(j * rightNumOfLabelsPerColumn) + i] + widthBalancer)
 
-                  // + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1))) + widthBalancer
-
-
-
-                y1Right[(j * rightNumOfLabelsPerColumn) + i] =
-
-                Math.floor(y1Right[(j * rightNumOfLabelsPerColumn) + i] +
-
-                (rightMarginY * (i + 1)))
+                if (j > 1 && (x1Right[(j * rightNumOfLabelsPerColumn) + i] <=
+                x1Right[((j - 1) * rightNumOfLabelsPerColumn) + i])) {
+                  var tempWidthHelper = randomWidthMapper[x1Right[((j - 1) * rightNumOfLabelsPerColumn) + i]+','+
+                  y1Right[((j - 1) * rightNumOfLabelsPerColumn) + i]]
+                  tempWidthHelper = tempWidthHelper?tempWidthHelper:lWidth
+                  x1Right[(j * rightNumOfLabelsPerColumn) + i] = x1Right[((j - 1) * rightNumOfLabelsPerColumn) + i] +
+                  tempWidthHelper + globalObj.spacing.chartSpacingLeftRight
+                }
 
                 if (x1Right[(j*rightNumOfLabelsPerColumn) + i] > startPositions.right.endX || rightBalance < 0 || isNaN(x1Right[(j * rightNumOfLabelsPerColumn) + i]) ||
                 isNaN(y1Right[(j * rightNumOfLabelsPerColumn) + i]) ||
                   x1Right[(j * rightNumOfLabelsPerColumn) + i] < 0 || y1Right[(j * rightNumOfLabelsPerColumn) + i] < 0
-
-                //|| x1Left[(i * leftNumOfLabelsPerColumn) + j] +
 
                 ) {
 
@@ -2246,8 +2197,6 @@ function lineHelper(x11, y11, x22, y22) {
                   return false;
 
                 }
-
-                //((i%leftNumOfLabelsPerColumn) + 1)));
 
                 var tempRandom = randomBalancer(rightBalance/(rightNumOfColumns - j))
                 tempRandom = startPositions.right.endX < x1Right[(j*rightNumOfLabelsPerColumn) + i] + tempRandom + labelW + globalObj.spacing.chartSpacingLeftRight?
@@ -2271,56 +2220,6 @@ function lineHelper(x11, y11, x22, y22) {
               }
 
             }
-
-            /*for (var i = 0; i < x1Right.length; i++) {
-
-              currentRow = i % rightNumOfLabelsPerColumn;
-
-              currentColumn = Math.floor(i / rightNumOfLabelsPerColumn)
-
-              if (currentColumn == 0) {
-
-                widthBalancer = 0;
-
-                rightBalance = rightWidth - rightUsedWidth -
-
-                (rightNumOfColumns * globalObj.spacing.chartSpacingLeftRight)
-
-              }
-
-                x1Right[i] = Math.floor(x1Right[i] + widthBalancer)
-
-                  // + (rightMarginX * (Math.floor(i/rightNumOfLabelsPerColumn) + 1)))
-
-                //+ widthBalancer;
-
-                y1Right[i] = Math.floor(y1Right[i] + (rightMarginY * ((i%rightNumOfLabelsPerColumn) + 1)));
-
-                //getLabelPositions2HelperObj[x1Right[i] + ',' + y1Right[i]] = 'right';
-
-                //if (i == rightNumOfLabelsPerRow)
-
-                var tempRandom = randomBalancer(rightBalance/3)//labelW/2)
-
-                tempRandom = tempRandom < minW ? minW:tempRandom
-
-                rightBalance -= (tempRandom + globalObj.spacing.chartSpacingLeftRight + 1)
-
-                widthBalancer += tempRandom + globalObj.spacing.chartSpacingLeftRight
-
-                randomWidthMapper[x1Right[i]+','+y1Right[i]] = (labelW + tempRandom)
-
-                if (x1Right[i] < 0 || y1Right[i] < 0) {
-
-                  x1 = [0]
-
-                  y1 = [0]
-
-                  return false;
-
-                }
-
-            }*/
 
         }
 
@@ -2378,13 +2277,7 @@ function lineHelper(x11, y11, x22, y22) {
 
                 x1Down[i] = Math.floor(x1Down[i] + widthBalancer)
 
-                  // + (downMarginX * ((i%downNumOfLabelsPerRow) + 1))) +
-
-                //widthBalancer;
-
-                y1Down[i] = Math.floor(y1Down[i] + (downMarginY * (Math.floor(i/downNumOfLabelsPerRow) + 1)));
-
-                //getLabelPositions2HelperObj[x1Down[i] + ',' + y1Down[i]] = 'down';
+                //y1Down[i] = Math.floor(y1Down[i] + (downMarginY * (Math.floor(i/downNumOfLabelsPerRow) + 1)));
 
                 var tempRandom = randomBalancer(downBalance/(downNumOfLabelsPerRow - i))
                 tempRandom = startPositions.down.endX < x1Down[i] + tempRandom + labelW +
@@ -2409,9 +2302,171 @@ function lineHelper(x11, y11, x22, y22) {
                   return false;
 
                 }
+            }
+        }
 
+        if (x1Up.length > 0) {
+          var upUsedWidthHelper = randomWidthMapper[x1Up[upNumOfLabelsPerRow - 1]+','+y1Up[upNumOfLabelsPerRow - 1]]
+            var upUsedWidth = x1Up[upNumOfLabelsPerRow - 1] +
+            (upUsedWidthHelper + globalObj.spacing.chartSpacingLeftRight) - x1Up[0];
+            //x1Up[x1Up.length - 1] + labelW - x1Up[0];
+            var upUsedHeight = y1Up[y1Up.length - 1] + (labelH + globalObj.spacing.chartSpacingUpDown) - y1Up[0]
+            //y1Up[y1Up.length - 1] + labelH - y1Up[0]
+            var upMarginX = (pageScreenWidth - upUsedWidth) / (upNumOfLabelsPerRow + 1)
+            //(pageScreenWidth - upUsedWidth) / 2;
+            var upMarginY = (containerTop - upUsedHeight) / (upNumOfRows + 3)
+            //(containerTop - upUsedHeight) / 2;
+            upMarginX = isNaN(upMarginX) ? 0 : upMarginX;
+            upMarginY = isNaN(upMarginY) ? 0 : upMarginY;
+            for (var i = 0; i < x1Up.length; i++) {
+              var ow = randomWidthMapper[x1Up[i]+','+y1Up[i]]
+              delete randomWidthMapper[x1Up[i]+','+y1Up[i]]
+                x1Up[i] = Math.floor(x1Up[i] + (upMarginX * ((i%upNumOfLabelsPerRow) + 1)));
+                y1Up[i] = Math.floor(y1Up[i] + (upMarginY * (Math.floor(i/upNumOfLabelsPerRow) + 1)));
+                randomWidthMapper[x1Up[i]+','+y1Up[i]] = ow
+                if (x1Up[i] < 0 || y1Up[i] < 0) {
+                  x1 = [0]
+                  y1 = [0]
+                  return false;
+                }
+                //getLabelPositions2HelperObj[x1Up[i] + ',' + y1Up[i]] = 'up';
+            }
+        }
+
+        if (x1Left.length > 0) {
+            var leftWidth = containerLeft
+            var leftHeight = containerHeight;
+            var leftUsedWidthHelper = labelW
+            var leftUsedWidthHelperArr = []
+            for (var m = 0; m < leftNumOfLabelsPerColumn; m++) {
+              if ((leftNumOfLabelsPerColumn * (leftNumOfColumns) + m) < x1Left.length) {
+                var leftUsedWidthHelper2 = randomWidthMapper[x1Left[leftNumOfLabelsPerColumn * (leftNumOfColumns) + m]+','
+                +y1Left[leftNumOfLabelsPerColumn * (leftNumOfColumns) + m]]
+                var leftUsedWidthHelper3 = x1Left[leftNumOfLabelsPerColumn * (leftNumOfColumns) + m] +
+                leftUsedWidthHelper2
+                leftUsedWidthHelper3 -= x1Left[0]
+                leftUsedWidthHelper3 = isNaN(leftUsedWidthHelper3)?0:leftUsedWidthHelper3
+                leftUsedWidthHelper3 = (leftWidth - leftUsedWidthHelper3) / (leftNumOfColumns + 9)
+                leftUsedWidthHelper3 = leftUsedWidthHelper3 < 0?0:leftUsedWidthHelper3
+                leftUsedWidthHelperArr.push(leftUsedWidthHelper3)
+              } else {
+                leftUsedWidthHelperArr.push(0)
+              }
             }
 
+            var leftUsedHeight = y1Left[leftNumOfLabelsPerColumn - 1] +
+            (labelH + globalObj.spacing.chartSpacingUpDown) - y1Left[0];
+            var leftUsedWidth = x1Left[x1Left.length - 1] +
+            (leftUsedWidthHelper + globalObj.spacing.chartSpacingLeftRight) - x1Left[0];
+            var leftMarginX = (leftWidth - leftUsedWidth) / (leftNumOfColumns + 1)// / 2;
+            var leftMarginY = (leftHeight - leftUsedHeight) / (leftNumOfLabelsPerColumn)//2;
+            leftMarginX = isNaN(leftMarginX) ? 0 : leftMarginX;
+            leftMarginY = isNaN(leftMarginY) ? 0 : leftMarginY;
+            for (var i = 0; i < x1Left.length; i++) {
+              var rowHelper = i%leftNumOfLabelsPerColumn
+              var ow = randomWidthMapper[x1Left[i]+','+y1Left[i]]
+              delete randomWidthMapper[x1Left[i]+','+y1Left[i]]
+              var leftMarginXCurr = leftUsedWidthHelperArr[rowHelper]
+              if (rowHelper <= leftUsedWidthHelperArr.length && leftNumOfColumns > 1) {
+                x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr * (Math.floor(i/leftNumOfLabelsPerColumn) + 1)))
+              } else {
+                x1Left[i] = Math.floor(x1Left[i] + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1)))
+              }
+                y1Left[i] = Math.floor(y1Left[i] + (leftMarginY * ((i%leftNumOfLabelsPerColumn) + 1)));
+                randomWidthMapper[x1Left[i]+','+y1Left[i]] = ow
+                if (x1Left[i] < 0 || y1Left[i] < 0) {
+                  x1 = [0]
+                  y1 = [0]
+                  return false;
+                }
+            }
+        }
+
+        if (x1Right.length > 0) {
+            var rightUsedHeight = (y1Right[rightNumOfLabelsPerColumn - 1] + labelH +
+              globalObj.spacing.chartSpacingUpDown) - y1Right[0];
+            //(y1Right[y1Right.length - 1] + labelH) - y1Right[0];
+            var rightUsedWidthHelperArr = []
+            for (var m = 0; m < rightNumOfLabelsPerColumn; m++) {
+              if ((rightNumOfLabelsPerColumn * (rightNumOfColumns) + m) < x1Right.length) {
+                var rightUsedWidthHelper2 =
+                randomWidthMapper[x1Right[rightNumOfLabelsPerColumn * (rightNumOfColumns) + m]+','
+                +y1Right[rightNumOfLabelsPerColumn * (rightNumOfColumns) + m]]
+                var rightUsedWidthHelper3 = x1Right[rightNumOfLabelsPerColumn * (rightNumOfColumns) + m] +
+                rightUsedWidthHelper2
+                rightUsedWidthHelper3 -= x1Right[0]
+                rightUsedWidthHelper3 = isNaN(rightUsedWidthHelper3)?0:rightUsedWidthHelper3
+                rightUsedWidthHelper3 = (pageScreenWidth - (containerLeft + containerWidth) -
+                    rightUsedWidthHelper3) / (rightNumOfColumns + 10)
+                rightUsedWidthHelper3 = rightUsedWidthHelper3<0?0:rightUsedWidthHelper3
+                rightUsedWidthHelperArr.push(rightUsedWidthHelper3)
+              } else {
+                  rightUsedWidthHelperArr.push(0)
+              }
+            }
+            var rightUsedWidthHelper = randomWidthMapper[x1Right[x1Right.length - 1]+','+
+            y1Right[x1Right.length - 1]]
+            var rightUsedWidth = (x1Right[x1Right.length - 1] + rightUsedWidthHelper +
+              globalObj.spacing.chartSpacingLeftRight) - x1Right[0];
+            var rightHeight = containerHeight;
+            var rightMarginX = (pageScreenWidth - (containerLeft + containerWidth) -
+                rightUsedWidth) / (rightNumOfColumns + 1)//2
+                //(labelW)// + globalObj.spacing.pageSpacingLeftRight);
+            var rightMarginY = (rightHeight - rightUsedHeight) / (rightNumOfLabelsPerColumn + 1)//2;
+            rightMarginX = isNaN(rightMarginX) ? 0 : rightMarginX;
+            rightMarginY = isNaN(rightMarginY) ? 0 : rightMarginY;
+            for (var i = 0; i < x1Right.length; i++) {
+
+              var rowHelper = i%rightNumOfLabelsPerColumn
+              var rightMarginXCurr = rightUsedWidthHelperArr[rowHelper]
+
+              var ow = randomWidthMapper[x1Right[i]+','+y1Right[i]]
+              delete randomWidthMapper[x1Right[i]+','+y1Right[i]]
+                //x1Right[i] = Math.floor(x1Right[i] + (rightMarginX * (Math.floor(i/rightNumOfLabelsPerColumn) + 1)));
+
+                if (rowHelper <= rightUsedWidthHelperArr.length && rightNumOfColumns > 1) {
+                  x1Right[i] = Math.floor(x1Right[i] + (rightMarginXCurr *
+                    (Math.floor(i/rightNumOfLabelsPerColumn) + 1)))
+                } else {
+                  x1Right[i] = Math.floor(x1Right[i] + (rightMarginX * (Math.floor(i/rightNumOfLabelsPerColumn) + 1)))
+                }
+
+                y1Right[i] = Math.floor(y1Right[i] + (rightMarginY * ((i%rightNumOfLabelsPerColumn) + 1)));
+                randomWidthMapper[x1Right[i]+','+y1Right[i]] = ow
+                if (x1Right[i] < 0 || y1Right[i] < 0) {
+                  x1 = [0]
+                  y1 = [0]
+                  return false;
+                }
+            }
+        }
+
+        if (x1Down.length > 0) {
+            var bottomWidth = pageScreenWidth;
+            var bottomHeight = pageScreenHeight - containerHeight - containerTop;
+            var downUsedWidthHelper = randomWidthMapper[x1Down[downNumOfLabelsPerRow - 1]+','+
+            y1Down[downNumOfLabelsPerRow - 1]]
+            var downUsedWidth = (x1Down[downNumOfLabelsPerRow - 1] + downUsedWidthHelper +
+            globalObj.spacing.chartSpacingLeftRight) - x1Down[0];
+            //(x1Down[x1Down.length - 1] + labelW) - x1Down[0];
+            var downUsedHeight = (y1Down[y1Down.length - 1] + labelH +
+            globalObj.spacing.chartSpacingUpDown) - y1Down[0];
+            var downMarginX = (bottomWidth - downUsedWidth) / (downNumOfLabelsPerRow + 1)//2;
+            var downMarginY = (bottomHeight - downUsedHeight) / (downNumOfRows + 3)//2;
+            downMarginX = isNaN(downMarginX) ? 0 : downMarginX;
+            downMarginY = isNaN(downMarginY) ? 0 : downMarginY;
+            for (var i = 0; i < x1Down.length; i++) {
+              var ow = randomWidthMapper[x1Down[i]+','+y1Down[i]]
+              delete randomWidthMapper[x1Down[i]+','+y1Down[i]]
+                x1Down[i] = Math.floor(x1Down[i] + (downMarginX * ((i%downNumOfLabelsPerRow) + 1)));
+                y1Down[i] = Math.floor(y1Down[i] + (downMarginY * (Math.floor(i/downNumOfLabelsPerRow) + 1)));
+                randomWidthMapper[x1Down[i]+','+y1Down[i]] = ow
+                if (x1Down[i] < 0 || y1Down[i] < 0) {
+                  x1 = [0]
+                  y1 = [0]
+                  return false;
+                }
+            }
         }
 
         var retArr = {}

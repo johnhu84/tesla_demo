@@ -1082,31 +1082,31 @@
             var dist = Math.sqrt(dx * dx + dy * dy);
             var length = dist;
             var pathPts = findEdgeRouterPoints(p0.x, p0.y, pe.x, pe.y)
+
+            //check if p1x and p1y or p2x and p2y are in randomWidthMapper by checking if x and y are in
+            //rectangle there
+            //then check ulrdMapper if it is up/left/right/down
+            //then using width from randomWidthMapper, calculate the actually drawn label x and y
+
             var p1x = p0.x
             var p1y = p0.y
+            /*var p1Helper = getActualXY(p1x, p1y)
+            if (p1Helper) {
+              p1x = p1Helper.x
+              p1y = p1Helper.y
+            }*/
             var p2x = pe.x
             var p2y = pe.y
-            // Computes the norm and the inverse norm
-            /*var nx = dx / dist;
-            var ny = dy / dist;
-            var basex = length * nx;
-            var basey = length * ny;
-            var floorx = width * ny/3;
-            var floory = -width * nx/3;
-
-            // Computes points
-            var p0x = p0.x - floorx / 2;
-            var p0y = p0.y - floory / 2;
-            var p1x = p0x + floorx;
-            var p1y = p0y + floory;
-            var p2x = p1x + basex;
-            var p2y = p1y + basey;
-            var p3x = p2x + floorx;
-            var p3y = p2y + floory;
-            // p4 not necessary
-            var p5x = p3x - 3 * floorx;
-            var p5y = p3y - 3 * floory;*/
-
+            var p2Helper = getActualXYBySphereXY(p2x, p2y)
+            if (p2Helper) {
+              p1x = p2Helper.x
+              p1y = p2Helper.y
+            }
+            /*var labelActualXYToDrawnXYHelper = labelActualXYToDrawnXY[p2x+','+p2y]
+            if (labelActualXYToDrawnXYHelper) {
+              p2x = labelActualXYToDrawnXYHelper.x
+              p2y = labelActualXYToDrawnXYHelper.y
+            }*/
             c.begin();
 
 
