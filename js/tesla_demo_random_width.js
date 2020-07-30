@@ -2339,10 +2339,11 @@ function lineHelper(x11, y11, x22, y22) {
             var leftUsedWidthHelper = labelW
             var leftUsedWidthHelperArr = []
             for (var m = 0; m < leftNumOfLabelsPerColumn; m++) {
-              if ((leftNumOfLabelsPerColumn * (leftNumOfColumns) + m) < x1Left.length) {
-                var leftUsedWidthHelper2 = randomWidthMapper[x1Left[leftNumOfLabelsPerColumn * (leftNumOfColumns) + m]+','
-                +y1Left[leftNumOfLabelsPerColumn * (leftNumOfColumns) + m]]
-                var leftUsedWidthHelper3 = x1Left[leftNumOfLabelsPerColumn * (leftNumOfColumns) + m] +
+              if (((leftNumOfLabelsPerColumn * (leftNumOfColumns - 1)) + m) < x1Left.length) {
+                var leftUsedWidthHelper2 =
+                randomWidthMapper[x1Left[(leftNumOfLabelsPerColumn * (leftNumOfColumns - 1)) + m]+','
+                +y1Left[(leftNumOfLabelsPerColumn * (leftNumOfColumns - 1)) + m]]
+                var leftUsedWidthHelper3 = x1Left[(leftNumOfLabelsPerColumn * (leftNumOfColumns - 1)) + m] +
                 leftUsedWidthHelper2
                 leftUsedWidthHelper3 -= x1Left[0]
                 leftUsedWidthHelper3 = isNaN(leftUsedWidthHelper3)?0:leftUsedWidthHelper3
@@ -2388,11 +2389,11 @@ function lineHelper(x11, y11, x22, y22) {
             //(y1Right[y1Right.length - 1] + labelH) - y1Right[0];
             var rightUsedWidthHelperArr = []
             for (var m = 0; m < rightNumOfLabelsPerColumn; m++) {
-              if ((rightNumOfLabelsPerColumn * (rightNumOfColumns) + m) < x1Right.length) {
+              if (((rightNumOfLabelsPerColumn * (rightNumOfColumns - 1)) + m) < x1Right.length) {
                 var rightUsedWidthHelper2 =
-                randomWidthMapper[x1Right[rightNumOfLabelsPerColumn * (rightNumOfColumns) + m]+','
-                +y1Right[rightNumOfLabelsPerColumn * (rightNumOfColumns) + m]]
-                var rightUsedWidthHelper3 = x1Right[rightNumOfLabelsPerColumn * (rightNumOfColumns) + m] +
+                randomWidthMapper[x1Right[(rightNumOfLabelsPerColumn * (rightNumOfColumns - 1)) + m]+','
+                +y1Right[(rightNumOfLabelsPerColumn * (rightNumOfColumns - 1)) + m]]
+                var rightUsedWidthHelper3 = x1Right[(rightNumOfLabelsPerColumn * (rightNumOfColumns - 1)) + m] +
                 rightUsedWidthHelper2
                 rightUsedWidthHelper3 -= x1Right[0]
                 rightUsedWidthHelper3 = isNaN(rightUsedWidthHelper3)?0:rightUsedWidthHelper3
