@@ -1,0 +1,1275 @@
+<html>
+<head>
+    <title>报告查看</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="js/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="js/report.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/jquery-ui/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/projectJs/creatReport/newCreatReport.js"></script>
+    <script src="js/report/3dAction.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" type="text/css" href="js/projectJs/font_1184594_1urawxn3pv6/demo.css" />
+    <link rel="stylesheet" type="text/css" href="js/projectJs/font_1184594_1urawxn3pv6/iconfont.css" />
+    <script src="js/projectJs/handsontable-6.2.2/dist/handsontable.full.js"></script>
+    <link href="js/projectJs/handsontable-6.2.2/dist/handsontable.full.css" rel="stylesheet">
+
+    <!--<link rel="stylesheet" type="text/css" href="js/projectJs/comboTree/css/tree.css"/>-->
+    <script src="js/projectJs/comboTree/js/comboTreePlugin.js"></script>
+
+    <style>
+        .wrapper .ico_docu,.wrapper  .ico_close,.wrapper .ico_open{
+            display: none !important;
+        }
+        .select2-container--open .select2-dropdown{left:0;z-index:999999999;}
+        .chartTabel tr td {
+            font-size: 1px!important;
+        }
+
+        /*#myBar {*/
+        /*    width: 10%;*/
+        /*    height: 30px;*/
+        /*    background-color: #4CAF50;*/
+        /*    text-align: center; !* To center it horizontally (if you want) *!*/
+        /*    line-height: 30px; !* To center it vertically *!*/
+        /*    color: white;*/
+        /*}*/
+        .spinner {
+            position: absolute;
+            left: 50%;
+            top: 50vh;
+            height:60px;
+            width:60px;
+            margin:0px auto;
+            -webkit-animation: rotation .6s infinite linear;
+            -moz-animation: rotation .6s infinite linear;
+            -o-animation: rotation .6s infinite linear;
+            animation: rotation .6s infinite linear;
+            border-left:6px solid rgba(0,174,239,.15);
+            border-right:6px solid rgba(0,174,239,.15);
+            border-bottom:6px solid rgba(0,174,239,.15);
+            border-top:6px solid rgba(0,174,239,.8);
+            border-radius:100%;
+        }
+        #overlay {
+            position: fixed;
+            display: none;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        @-webkit-keyframes rotation {
+            from {-webkit-transform: rotate(0deg);}
+            to {-webkit-transform: rotate(359deg);}
+        }
+        @-moz-keyframes rotation {
+            from {-moz-transform: rotate(0deg);}
+            to {-moz-transform: rotate(359deg);}
+        }
+        @-o-keyframes rotation {
+            from {-o-transform: rotate(0deg);}
+            to {-o-transform: rotate(359deg);}
+        }
+        @keyframes rotation {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(359deg);}
+        }
+        #zoomAdjuster.ui-slider, #opacityAdjuster.ui-slider {
+            width:80px;
+        }
+        .radiovertical label{
+            display: inline-flex;
+        }
+        .radiovertical input{
+            margin-right: 5px;
+        }
+
+
+
+        /* .select2-container--open .select2-dropdown{left:0;z-index:999999999;} */
+        .wrapper{
+            width: 100%;
+            margin: 0px !important
+        }
+
+        /* 报告标签表格样式 */
+        .svg-table .htCore {
+            margin: 0;
+            /* 字体 */
+            color: #000;
+            font-weight: 700;
+        }
+
+        /* 标签框点击弹窗样式 */
+        #label-zoom-in th,td {
+            white-space: nowrap;
+        }
+        #label-zoom-in .htCore {
+            transform: scale(1)!important;
+        }
+        #label-zoom-in .svg-table {
+            display: block!important;
+            margin: 15px 25px!important;
+        }
+    </style>
+</head>
+<body>
+<!--<div class="slideTxtBox">
+    <div class="right-con">-->
+      <style>
+    /* 避免标签框遮盖指示线 */
+    #labelContainer > div {
+        z-index: -1;
+    }
+</style>
+ <!--  canvas画布 -->
+<div style="position: relative;width: 101%;top:0px;z-index: 1;background-color: #fff;
+	 margin-top: 0px;height: 1080px">
+   <div style="width:600px;">
+   <div style="width:150px;float:left;">
+     宽度：<input type="text" style="width:90px;" name="lWidth" id="lWidth" onchange="lWidthChange(event)"/>
+   </div>
+   <div style="width:150px;float:left;">
+     高度：<input type="text" style="width:90px;" name="lHeight" id="lHeight" onchange="lHeightChange(event)"/>
+   </div>
+   <div style="width:150px;float:left;">
+     几个：<input type="text" style="width:90px;" name="lNum" id="lNum" onchange="lNumChange(event)"/>
+   </div>
+   <div style="width:150px;float:left;">
+     <button onclick="changeCanvas(event)">Change</button>
+   </div>
+   </div>
+    <div id="pageScreen" class="pageScreenCanvas"
+    style="position: absolute;width: 1567px;height: 1080px;top:0px;z-index: 1;
+    border: 1px solid black;">
+        <div id="graphContainer" ondblclick="changeZIndex(1)" style="z-index: 11;
+        position:absolute; pointer-events:none;width: 1567px;height: 1080px;margin: auto">
+            <div id="mubanContainer"></div>
+            <div id="labelContainer"></div>
+        </div>
+        <div id="container" class="" style="z-index: 8;width: 440px;height: 400px;position: relative;
+        top:357.5px;left:583.5px;margin: inherit;background-color: bisque;">
+        <!-- <div id="container" class="" style="z-index: 8;width: 400px;height: 360px;position: relative;top:0;left:0;margin: inherit"> -->
+            <canvas id="canvas" style="margin: 20; position: absolute;left: 0px;top: 0px;z-index: 10"></canvas>
+            <div id="childrenSuo" style="width: 100%;height: 100%;background-color:transparent;left: 0px;top: 0px;z-index: 10"></div>
+        </div>
+    </div>
+</div>
+
+<script src="js/report/3d/plugin/three/three.js"></script>
+<script src="js/report/3d/plugin/three/Detector.js"></script>
+<script src="js/report/3d/loaders/DDSLoader.js"></script>
+<script src="js/report/3d/loaders/STLLoader.js"></script>
+<script src="js/report/3d/loaders/PLYLoader.js"></script>
+<script src="js/report/3d/interface/interface.js"></script>
+<script src="js/report/3d/algorithm/Matrix4.js"></script>
+<script src="js/report/3d/algorithm/Quaternion.js"></script>
+<script src="js/report/3d/algorithm/Vector3.js"></script>
+<script src="js/report/3d/geometry/Polyhedron.js"></script>
+<script src="js/report/3d/roamingControls/TrackballControls.js"></script>
+<script src="js/report/3d/graphic/LightManager.js"></script>
+<script src="js/report/3d/graphic/CameraManager.js"></script>
+<script src="js/report/3d/graphic/ControlManager.js"></script>
+<script src="js/report/3d/graphic/SceneManager.js"></script>
+<script src="js/report/3d/graphic/RenderManager.js"></script>
+<script src="js/report/3d/drawer/DrawManager.js"></script>
+<script src="js/report/3d/loaders/LoadManager.js"></script>
+<script src="js/report/3d/drawer/DrawAdaptor.js"></script>
+<script src="js/report/3d/adaptor/interact/PointerPick.js"></script>
+<script src="js/report/3d/adaptor/interact/SquarePick.js"></script>
+<script src="js/report/3d/adaptor/interact/Pick.js"></script>
+<script src="js/report/3d/adaptor/navigator/NavigatorHelper.js"></script>
+<script src="js/report/3d/adaptor/navigator/Navigator.js"></script>
+<script src="js/report/3d/adaptor/text/TextHelper.js"></script>
+<script src="js/report/3d/adaptor/measure/MeasureNodeHelper.js"></script>
+<script src="js/report/3d/adaptor/measure/MeasureDistance.js"></script>
+<script src="js/report/3d/adaptor/clip/PlaneClipHelper.js"></script>
+<script src="js/report/3d/adaptor/clip/PlaneClip.js"></script>
+
+<script type="text/javascript" src="js/report/3d/loader.js"></script>
+<script type="text/javascript" src="js/report/3d/3d.js"></script>
+        <!-- 3D end -->
+        <div class="reportbottom" style="display: none">页脚</div>
+
+        <div style="margin-top:35px;background-color: #fff;width: 100%;overflow: scroll;display:none" class="clearfix">
+
+        	<div id="dataset-tabs" class="layui-tab" lay-filter="dataset-tabs" >
+			  <ul class="layui-tab-title">
+			  </ul>
+			  <div class="layui-tab-content">
+			  </div>
+			</div>
+
+            <div id="ChildCoordinates" style="display: none">
+                <div class="ChildCoordinates" style="padding:15px 25px">
+                    <div class="BigOne">
+                        <p class="PData Mrgin0" style="">数据组A</p>
+                        <div class="padding15 clearfix" style="border: 1px solid  rgba(0,0,0,0.15)">
+                            <div class="bigOneLeft fl" style="" >
+                                <p class="title" style="">测点</p>
+                                <div style="margin-top: 15px">
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A1:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A2:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A3:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bigOneCenter fl" style="">
+                                <p class="center">方向</p>
+                                <select name="" id="" style="padding: 0px 10px">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="bigOneRight fl" style=" ">
+                                <p class="title" style="">偏置</p>
+                                <div style="margin-top: 15px">
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A1:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A2:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                    <div class="clearfix formPS">
+                                        <p class="" style="">A3:</p>
+                                        <select class="fl" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="BigTwo">
+                        <p class="PData Mrgin0" style="">数据组B</p>
+                        <div class="padding15 clearfix" style="border: 1px solid  rgba(0,0,0,0.15)">
+                            <div class="bigTwoLeft fl" style="" >
+                                <p class="title" style="">测点</p>
+                                <div style="margin-top: 15px">
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A1:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A2:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bigTwoCenter fl" style="">
+                                <p class="center">方向</p>
+                                <select name="" id="" style="padding: 0px 10px">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="bigTwoRight fl" style=" ">
+                                <p class="title" style="">偏置</p>
+                                <div style="margin-top: 15px">
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A1:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A2:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="BigThree">
+                        <p class="PData Mrgin0" style="">数据组C</p>
+                        <div class="padding15 clearfix" style="border: 1px solid  rgba(0,0,0,0.15)">
+                            <div class="bigThreeLeft fl" style="" >
+                                <p class="title" style="">测点</p>
+                                <div style="margin-top: 15px">
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A1:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bigThreeCenter fl" style="">
+                                <p class="center">方向</p>
+                                <select name="" id="" style="padding: 0px 10px">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="bigThreeRight fl" style=" ">
+                                <p class="title" style="">偏置</p>
+                                <div style="margin-top: 15px">
+                                    <div class="clearfix formPS">
+                                        <p class="fl" style="">A1:</p>
+                                        <select class="" name="" id="" style="">
+                                            <option value="">a1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="btnGroup clearfix">
+                        <a class="surbtn fl" style="" href="javascript:void(0)">检查</a>
+                        <a class="surbtn fl MarginL10" style="" href="javascript:void(0)">运行</a>
+                        <div class="fl clearfix" style="height: 25px;line-height: 25px;margin-top: 10px">
+                            <input type="checkbox" style="margin-top: 5px !important;" class="fl  MarginL10">
+                            <p class="fl MarginL5">详细测试报告</p>
+                        </div>
+                        <a class="surbtn fr" style="" href="javascript:void(0)">确定</a>
+                        <a class="surbtn fr MarginR10" style=""  href="javascript:void(0)">取消</a>
+                    </div>
+                </div>
+            </div>
+            <div  id="PointEditing" style="display: none">
+                <div class="PointEditing">
+                    <div class="BigPointEditing" style="">
+                        <div id="BigPointEditingTree" class="BigPointEditingTree" style="">
+                            <div id="PointEditingTree">
+                                <ul id="treeDemo11" class="ztree"></ul>
+                            </div>
+                        </div>
+                        <div class="btnGroup">
+                            <a class="surbtn fl" style="" onclick="NewFeatures()" href="javascript:void(0)">新建特征</a>
+                            <a class="surbtn fl MrginL15" onclick="EditChildCoordinate()" style="" href="javascript:void(0)">编辑子坐标系</a>
+                            <a class="surbtn fl MrginL15" onclick="CreateDeviation()" style="" href="javascript:void(0)">创建偏差</a>
+                            <a class="surbtn fl MrginL15" onclick="DeleteDeviation()" style="" href="javascript:void(0)">删除偏差</a>
+                            <a class="surbtn fl MrginL15" onclick="CreateTheoreticalValue()" style=""  href="javascript:void(0)">创建理论值</a>
+                        </div>
+                    </div>
+                    <div class="btnGroup1">
+                        <a class="surbtn fr MrginR20" style="" href="javascript:void(0)">确定</a>
+                        <a class="fr MrginR15" style="" href="javascript:void(0)">取消</a>
+                    </div>
+                </div>
+            </div>
+            <div  id="NewFeatures" class="" style="display: none">
+                <div class="PointEditing NewFeatures MrginT30">
+                    <div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">名称:</p>
+                            <input type="text">
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">类型:</p>
+                            <select class="" name="" id="" style="">
+                                <option value="">a1</option>
+                            </select>
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">描述:</p>
+                            <textarea name="" id="" cols="30" rows="10"></textarea>
+                        </div>
+                    </div>
+                    <div class="btnGroup1 MrginT30">
+                        <a class="surbtn fr MrginR20" style="" href="javascript:void(0)">确定</a>
+                        <a class="fr MrginR15" style="" href="javascript:void(0)">取消</a>
+                    </div>
+                </div>
+            </div>
+            <div  id="EditChildCoordinate" style="display: none">
+                <div class="PointEditing EditChildCoordinate">
+                    <div class="BigPointEditing" style="">
+                        <p>选择子坐标系</p>
+                        <div class="clearfix formPS Mrgin0" style="margin-bottom: 10px !important;">
+                            <select class="" name="" id="" style="">
+                                <option value="">a1</option>
+                            </select>
+                            <a href="javascript:void(0)" onclick="NewCreatChildCoordinate
+
+                            ()" class="surbtn MarginL10" style="margin-top: -1px !important;">创建</a>
+                        </div>
+                        <div id="BigPointEditingTree" class="BigPointEditingTree" style="">
+                            <div id="PointEditingTree">
+                                <ul id="treeDemo22" class="ztree" style="height: 350px;overflow: auto"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btnGroup1 clearfix">
+                        <a class="surbtn fr MrginR20" style="" href="javascript:void(0)">确定</a>
+                        <a class="fr MrginR15" style="" href="javascript:void(0)">取消</a>
+                    </div>
+                </div>
+            </div>
+            <div  id="NewCreatChildCoordinate" style="display: none">
+                <div class="PointEditing EditChildCoordinate NewCreatChildCoordinate">
+                    <div class="BigPointEditing" style="height: 120px !important;">
+                        <div class="clearfix formPS">
+                            <p class="fl Mrgin0" style="">名称:</p>
+                            <input type="text">
+                        </div>
+                        <div class="clearfix formPS MrginT10">
+                            <p class="fl Mrgin0" style="">范围:</p>
+                            <div>
+                                <lable>无 <input type="radio"></lable>
+                                <lable class="MrginL10">右 <input type="radio"></lable>
+                                <lable class="MrginL10">左 <input type="radio"></lable>
+                                <lable class="MrginL10">两边 <input type="radio"></lable>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="btnGroup1 clearfix">
+                        <a class="surbtn fr MrginR20" style="" href="javascript:void(0)">确定</a>
+                        <a class="fr MrginR15" style="" href="javascript:void(0)">取消</a>
+                    </div>
+                </div>
+            </div>
+            <div  id="CreateDeviation" class="" style="display: none">
+                <div class="PointEditing NewFeatures CreateDeviation MrginT30">
+                    <div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">理论值类型:</p>
+                            <select class="" name="" id="" style="">
+                                <option value="">a1</option>
+                            </select>
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">公差类型:</p>
+                            <select class="" name="" id="" style="">
+                                <option value="">a1</option>
+                            </select>
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">公差值类型:</p>
+                            <select class="" name="" id="" style="">
+                                <option value="">a1</option>
+                            </select>
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">公差侧类型:</p>
+                            <select class="" name="" id="" style="">
+                                <option value="">a1</option>
+                            </select>
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">有效日期:</p>
+                            <input style="width: 100px;" class="fl" autocomplete="off" class="Wdate" id="beginDate" name="beginDate" size="12"
+                                   type="text" style="width: 100%;" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'
+																				   ,maxDate:'\%y-%M-%d\')}'
+																				   })" />
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">最大值:</p>
+                            <input type="text">
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">最小值:</p>
+                            <input type="text">
+                        </div>
+
+
+                        <div class="btnGroup1 MrginT30">
+                            <a class="surbtn fr MrginR20" style="" href="javascript:void(0)">确定</a>
+                            <a class="fr MrginR15" style="" href="javascript:void(0)">取消</a>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    // <select id="" class="positionAbsolute" name="" onchange="cedianqihuan()" title="" >
+                    //
+                    //     <option value="测点编辑" onclick="PointEditing()">测点编辑</option>
+                    //     <option value="激活" onclick="Activation()">激活</option>
+                    //     <option value="设置子坐标系" onclick="ChildCoordinates()">设置子坐标系</option>
+                    //     </select>
+                    function cedianqihuan(){
+                        var vs = $('#select  option:selected').val();
+                        console.log(vs)
+                        if(vs=="激活"){
+                            Activation()
+                        }else if(vs=="测点编辑"){
+                            PointEditing()
+                        }else if(vs=="设置子坐标系"){
+                            ChildCoordinates()
+                        }
+
+                    }
+                    function  PointEditing() {//测点编辑
+                        layer.open({
+                            type: 1,
+                            offset: '10%', //top
+                            scrollbar: false,
+                            area: ['70%', '80%'],
+                            maxmin: true, //开启最大化最小化按钮
+                            shade: 0,
+                            title:"测点编辑",
+                            shadeClose: true, //点击遮罩关闭
+                            content: $('#PointEditing'), //注意，如果str是object，那么需要字符拼接。
+                            end: function() {
+                                $("#PointEditing").hide();
+                            }
+                        });
+
+                        var setting = {//加载
+                            check: {
+                                enable: false,
+                                chkboxType: {
+                                    "Y": "ps",
+                                    "N": "ps"
+                                }//设置子父关联关系
+                            },
+                            data: {
+                                simpleData: {
+                                    enable: true
+                                }
+                            },
+                            callback: {
+                                onClick: onCheck
+                            }
+                        };
+
+                        function onCheck(e, treeId, treeNode) {
+                            console.log(e,treeId,treeNode)
+                        }
+
+                        var zNodes =[//加载数据
+                            { id:1, pId:0, name:"根部门", open:true},
+                            { id:11, pId:1, name:"一级部门1", open:true},
+                            { id:111, pId:11, name:"一级部门1子部门1"},
+                            { id:112, pId:11, name:"一级部门1子部门2"},
+                            { id:12, pId:1, name:"一级部门2", open:true},
+                            { id:121, pId:12, name:"一级部门2子部门1"},
+                            { id:122, pId:12, name:"一级部门2子部门2"}
+                        ];
+
+                        $.fn.zTree.init($("#treeDemo11"), setting, zNodes);
+                    }
+                    function  Activation() {//激活
+                        alert("jihuo")
+                    }
+                    function  ChildCoordinates() {//设置子坐标系
+                        layer.open({
+                            type: 1,
+                            offset: '5%', //top
+                            scrollbar: false,
+                            area: ['70%', '90%'],
+                            maxmin: true, //开启最大化最小化按钮
+                            shade: 0,
+                            title:"设置子坐标",
+                            shadeClose: true, //点击遮罩关闭
+                            content: $('#ChildCoordinates'), //注意，如果str是object，那么需要字符拼接。
+                            end: function() {
+                                $("#ChildCoordinates").hide();
+                            }
+                        });
+                    }
+                    //新建特征
+                    function NewFeatures(){
+                        layer.closeAll()
+                        layer.open({
+                            type: 1,
+                            offset: '10%', //top
+                            scrollbar: false,
+                            area: ['60%', '60%'],
+                            maxmin: true, //开启最大化最小化按钮
+                            shade: 0,
+                            title:"新建特征",
+                            shadeClose: true, //点击遮罩关闭
+                            content: $('#NewFeatures'), //注意，如果str是object，那么需要字符拼接。
+                            end: function() {
+                                $("#NewFeatures").hide();
+                            }
+                        });
+                    }
+                    //编辑子坐标系
+                    function EditChildCoordinate(){
+                        layer.closeAll()
+                        layer.open({
+                            type: 1,
+                            offset: '10%', //top
+                            scrollbar: false,
+                            area: ['60%', '80%'],
+                            maxmin: true, //开启最大化最小化按钮
+                            shade: 0,
+                            title:"编辑子坐标系",
+                            shadeClose: true, //点击遮罩关闭
+                            content: $('#EditChildCoordinate'), //注意，如果str是object，那么需要字符拼接。
+                            end: function() {
+                                $("#EditChildCoordinate").hide();
+                            }
+                        });
+                        var setting = {//加载
+                            check: {
+                                enable: false,
+                                chkboxType: {
+                                    "Y": "ps",
+                                    "N": "ps"
+                                }//设置子父关联关系
+                            },
+                            data: {
+                                simpleData: {
+                                    enable: true
+                                }
+                            },
+                            callback: {
+                                onClick: onCheck
+                            }
+                        };
+
+                        function onCheck(e, treeId, treeNode) {
+                            console.log(e,treeId,treeNode)
+                        }
+
+                        var zNodes =[//加载数据
+                            { id:1, pId:0, name:"根部门", open:true},
+                            { id:11, pId:1, name:"一级部门1", open:true},
+                            { id:111, pId:11, name:"一级部门1子部门1"},
+                            { id:112, pId:11, name:"一级部门1子部门2"},
+                            { id:12, pId:1, name:"一级部门2", open:true},
+                            { id:121, pId:12, name:"一级部门2子部门1"},
+                            { id:122, pId:12, name:"一级部门2子部门2"}
+                        ];
+
+                        $.fn.zTree.init($("#treeDemo22"), setting, zNodes);
+                    }
+                    function NewCreatChildCoordinate(){
+                        layer.open({
+                            type: 1,
+                            offset: '20%', //top
+                            scrollbar: false,
+                            area: ['30%', '30%'],
+                            maxmin: true, //开启最大化最小化按钮
+                            shade: 0,
+                            title:"新建子坐标系",
+                            shadeClose: true, //点击遮罩关闭
+                            content: $('#NewCreatChildCoordinate'), //注意，如果str是object，那么需要字符拼接。
+                            end: function() {
+                                $("#NewCreatChildCoordinate").hide();
+                            }
+                        });
+                    }
+                    //创建偏差
+                    function CreateDeviation(){
+                        // layer.closeAll()
+                        layer.open({
+                            type: 1,
+                            offset: '15%', //top
+                            scrollbar: false,
+                            area: ['30%', '60%'],
+                            maxmin: true, //开启最大化最小化按钮
+                            shade: 0,
+                            title:"创建偏差",
+                            shadeClose: true, //点击遮罩关闭
+                            content: $('#CreateDeviation'), //注意，如果str是object，那么需要字符拼接。
+                            end: function() {
+                                $("#CreateDeviation").hide();
+                            }
+                        });
+                    }
+                    //删除偏差
+                    function DeleteDeviation(){
+
+                    }
+                    //创建理论值
+                    function CreateTheoreticalValue(){
+                        console.log(11)
+                        // layer.closeAll()
+                        layer.open({
+                            type: 1,
+                            offset: '15%', //top
+                            scrollbar: false,
+                            area: ['30%', '40%'],
+                            maxmin: true, //开启最大化最小化按钮
+                            shade: 0,
+                            title:"创建/编辑理论值",
+                            shadeClose: true, //点击遮罩关闭
+                            content: $('#CreateTheoreticalValue'), //注意，如果str是object，那么需要字符拼接。
+                            end: function() {
+                                $("#CreateTheoreticalValue").hide();
+                            }
+                        });
+                    }
+
+                </script>
+
+
+
+            </div>
+            <div  id="CreateTheoreticalValue" class="" style="display: none">
+                <div class="PointEditing NewFeatures CreateDeviation MrginT30">
+                    <div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">类型:</p>
+                            <select class="" name="" id="" style="">
+                                <option value="">a1</option>
+                            </select>
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">有效日期:</p>
+                            <input style="width: 100px;" class="fl" autocomplete="off" class="Wdate" id="beginDate" name="beginDate" size="12"
+                                   type="text" style="width: 100%;" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'
+																				   ,maxDate:'\%y-%M-%d\')}'
+																				   })" />
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">最大值:</p>
+                            <input type="text">
+                        </div>
+                        <div class="clearfix formPS">
+                            <p class="fl" style="">最小值:</p>
+                            <input type="text">
+                        </div>
+
+                    </div>
+                    <div class="btnGroup1 MrginT30">
+                        <a class="surbtn fr MrginR20" style="" href="javascript:void(0)">确定</a>
+                        <a class="fr MrginR15" style="" href="javascript:void(0)">取消</a>
+                    </div>
+                </div>
+            </div>
+            <div id="TraceBackTo" class="TraceBackTo" style="display: none;height: 100%;">
+                <div class="layui-tab layui-tab-brief clearfix" style="height: 100%;" id="customDataTab" lay-filter="customDataTabFilter">
+
+                    <ul class="layui-tab-title col-2 clearfix" style="">
+                        <li class="layui-this"  lay-id="customDataTab1">趋势图</li>
+                        <li lay-id="customDataTab2" >帕累托图</li>
+                        <li lay-id="customDataTab3" >控制图</li>
+                        <li class="customDataTab4">直方图</li>
+                        <li class="customDataTab5">Box and Whisker</li>
+                        <li class="customDataTab6">基准表</li>
+                        <li class="customDataTab7">SigmaMap</li>
+                        <li class="customDataTab8">堆积图</li>
+                    </ul>
+                </div>
+
+
+            </div>
+        <!--</div>
+    </div>-->
+
+    <link rel="stylesheet" href="js/jquery-ui/jquery-ui.min.css">
+    <script type="text/javascript" src="js/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/report/js/Chartbundle.js"></script>
+    <script type="text/javascript" src="js/report/threejs/examples/libs/chevrotain.min.js"></script>
+    <script type="text/javascript" src="js/report/js/chartjs-plugin-annotation.js"></script>
+    <link rel="stylesheet" type="text/css" href="js/projectJs/jqChooseColor/css/htmleaf-demo.css">
+    <link href="js/projectJs/jqChooseColor/css/demo.css" rel="stylesheet" />
+    <link href="js/projectJs/jqChooseColor/css/evol-colorpicker.min.css" rel="stylesheet" />
+    <script src="js/projectJs/jqChooseColor/js/evol-colorpicker.min.js" type="text/javascript" charset="utf-8"></script>
+
+     <script src="js/report/js/my4.js"></script>
+    <script src="js/report/report.js"></script>
+    <script src="js/report/js/my_muban.js"></script>
+    <script src="js/report/js/my_muban2.js"></script>
+    <script src="js/report/js/labelPositionsOptimizer.js"></script>
+    <script src="js/report/js/menuHelper.js"></script>
+    <script src="js/report/js/edgeRouterHelper.js"></script>
+    <script src="js/tesla_demo_random_width2.js"></script>
+
+    <script src="js/report/js/getCm4dTreeNodes_default_data.js"></script>
+
+    <script>
+        function TraceBackTo() {
+            layer.open({
+                type: 1,
+                offset: '10%', //top
+                scrollbar: false,
+                area: ['70%', '80%'],
+                maxmin: true, //开启最大化最小化按钮
+                shade: 0,
+                title: "追溯报告",
+                shadeClose: true, //点击遮罩关闭
+                content: $('#TraceBackTo'), //注意，如果str是object，那么需要字符拼接。
+                end: function() {
+                    $("#TraceBackTo").hide();
+                }
+            });
+            // 趋势图
+            TrendMapChart()
+            // 帕累托图
+            // ParetoDiagramChart()
+            var id = "ParetoDiagram",splineData= [{
+                name:"KS053005",
+                symbol:"square",
+                color:"red",
+                num:4,
+            },{
+                name:"KS053006",
+                symbol:"square",
+                num:1,
+                color:"red",
+            },{
+                name:"KS053007",
+                symbol:"square",
+                num:5,
+                color:"red"
+            },{
+                name:"KS053008",
+                symbol:"square",
+                num:10,
+                color:"red",
+            },{
+                name:"KS053009",
+                symbol:"square",
+                num:8,
+                color:"red",
+            }];
+            var ParetoDiagramSet={
+                categories:[],
+                columnData:[],
+                splineDataLabel:[]
+            }
+            function sortId(a,b){//排序
+                return b.num - a.num
+            }
+            splineData.sort(sortId);
+            var totalNum=0;
+            for(var i=0;i<splineData.length;i++){
+                totalNum+=splineData[i].num
+            }
+            var PercentageNum=0;
+            for(var i=0;i<splineData.length;i++){
+                // splineData[i-1].num/totalNum
+                var y=0;
+                if(i==0){
+                    PercentageNum=splineData[i].num
+                    y=(PercentageNum/totalNum).toFixed(2)
+                }else{
+                    PercentageNum+=splineData[i].num
+                    y=(PercentageNum/totalNum).toFixed(2)
+                    // (this.y/totalNum * 100).toFixed(2)
+                }
+                var item={
+                    name: splineData[i].name,
+                    color: splineData[i].color,
+                    marker: {
+                        symbol: splineData[i].symbol,
+                        lineColor: null,
+                        lineWidth: 1,
+                        states:{
+                            hover:{
+                                enabled:false
+                            },
+                            select: {
+                                nabled:false
+                            }
+                        }
+                    },
+                    y: y*100
+                }
+                console.log(item)
+                ParetoDiagramSet.categories.push(splineData[i].name)
+                ParetoDiagramSet.columnData.push(splineData[i].num)
+                ParetoDiagramSet.splineDataLabel.push(item)
+            }
+            // $(document).ready(function() {
+            ParetoDiagram(id, ParetoDiagramSet, totalNum)
+            // });
+            // //控制图
+
+            var activity = {
+                "id":"ControlChart",
+                "xData": ['a', 'b', 'c', 'd'],
+                "height":400,
+                "categories": ['a', 'b', 'c', 'd',"f",'g', 'h', 'i', 'j',"k",'l', 'm', 'n', 'o',"p",'q', 'r', 's', 't',"u"],
+                "width":500,
+                "datasets": [{
+                    "name": "Speed",
+                    "data": [12, 123, 153, 180,12,13,15,16,17,18,19,120,123,124,23,24,252,62,25,78],
+                    "unit": "km/h",
+                    "type": "line",
+                    "valueDecimals": 1,
+                    "color": "red",
+                    "symbol": "square"
+                }, {
+                    "name": "Elevation",
+                    "data": [12, 123, 153, 180,12,13,15,16,17,18,19,120,123,124,23,24,252,62,25,78],
+                    "unit": "m",
+                    "type": "line",
+                    "valueDecimals": 0,
+                    "color": "blue",
+                    "symbol": "triangle"
+                }],
+                "yAxis":[
+                    {
+                        lineWidth:1,
+                        gridLineWidth:0,
+                        lineColor:"#ccd6eb",
+                        tickWidth:1,
+                        title: {
+                            text: null
+                        },
+                        // plotLines:activity.Identification[i]
+                    },
+                    {
+                        lineWidth:1,
+                        gridLineWidth:0,
+                        lineColor:"#ccd6eb",
+                        tickWidth:1,
+                        title: {
+                            text: null
+                        },
+                        // plotLines:activity.Identification[i]
+                    }
+                ],
+            }
+            ControlChart(activity)
+
+            // //直方图
+            // // HistogramSetChart()
+            // //箱线图
+            // // BoxDiagramChart()
+            var id="BoxDiagram";
+            var BoxDiagramData={
+                data:[
+                    [100, 200, 248, 295, 509],
+                ],
+                plotBackgroundColor:"yellow",
+                abnormal:{
+                    abnormalData:[ // x, y positions where 0 is the first category  异常数据
+                        [0, 644],
+                        [0, 64]
+                    ],
+                    abnormalName:"异常值",
+                    abnormalColor:"red"
+                },
+                plotLines:[{
+                    value: 602,
+                    color: 'red',
+                    width: 1,
+                    dashStyle:"Dot",//虚线
+                    label: {
+                        text: '上公差',
+                        align: 'right',
+                        style: {
+                            color: 'blue'
+                        }
+                    }
+                },{
+                    value: 100,
+                    color: 'red',
+                    width: 1,
+                    dashStyle:"Solid",//实线
+                    label: {
+                        text: '下公差',
+                        align: 'right',
+                        style: {
+                            color: 'blue'
+                        }
+                    }
+                }]
+            }
+            BoxDiagram(id,BoxDiagramData)
+            // //堆积图
+            var id="PileUpChart",PileUpChartset={
+                categories:['苹果', ' 橙', 'x梨', '香蕉', '李子'],
+                colors:["red","yellow","blue","#999"],
+                series:[{
+                    type: 'column',
+                    name: '小张',
+                    data: [3, 2, 1, 3, 4],
+                    // color:["blue"]
+                }, {
+                    type: 'column',
+                    name: '小潘',
+                    data: [2, 3, 5, 7, 6],
+                    // color:["green"]
+                }, {
+                    type: 'column',
+                    name: '小王',
+                    data: [4, 3, 3, 9, 0],
+                    // color:["red"]
+                }, {
+                    type: 'spline',
+                    name: '平均值',
+                    data: [3, 2.67, 3, 6.33, 3.33],
+                    marker: {
+                        lineWidth: 2,
+                        lineColor: Highcharts.getOptions().colors[3],
+                        fillColor: 'white'
+                    }
+                }]
+            }
+            PileUpChart(id,PileUpChartset)
+            // 饼图
+            var id="StackingMap",PieChartSet={
+                Data:[{
+                    name: 'Chrome',
+                    y: 61.41,
+                    sliced: true,
+                    selected: true
+                }, {
+                    name: 'Internet Explorer',
+                    y: 11.84
+                }, {
+                    name: 'Firefox',
+                    y: 10.85
+                }, {
+                    name: 'Edge',
+                    y: 4.67
+                }, {
+                    name: 'Safari',
+                    y: 4.18
+                }],
+                colors:["red","yellow","green","#000","blue"]
+            }
+            PieChart(id,PieChartSet)
+            // 趋势图
+            TrendMapChart()
+        }
+    </script>
+
+    <!--加载 mxgraph-->
+    <script>
+        var mxBasePath = 'js/report/mxgraph';
+    </script>
+
+    <script src="js/report/mxgraph/mxclient.js"></script>
+
+    <script>
+        // Enables guides
+        mxGraphHandler.prototype.guidesEnabled = true;//引导线
+        mxEdgeHandler.prototype.snapToTerminals = true;
+        // Fixes possible clipping issues in Chrome
+        mxClient.NO_FO = true;
+
+        // 禁用鼠标右键
+        mxEvent.disableContextMenu(document.getElementById('pageScreen'));
+        var graph = new mxGraph(document.getElementById('labelContainer'));
+
+        //----beginning 7/17/2020
+        function LinkShape()
+        {
+            mxArrow.call(this);
+        };
+        mxUtils.extend(LinkShape, mxArrow);
+        LinkShape.prototype.paintEdgeShape = function(c, pts)
+        {
+            // Base vector (between end points)
+            var p0 = pts[0];
+            var pe = pts[pts.length - 1];
+
+            var dx = pe.x - p0.x;
+            var dy = pe.y - p0.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            var length = dist;
+            var pathPts = findEdgeRouterPoints(p0.x, p0.y, pe.x, pe.y)
+            var p1x = p0.x
+            var p1y = p0.y
+            var p2x = pe.x
+            var p2y = pe.y
+            // Computes the norm and the inverse norm
+            /*var nx = dx / dist;
+            var ny = dy / dist;
+            var basex = length * nx;
+            var basey = length * ny;
+            var floorx = width * ny/3;
+            var floory = -width * nx/3;
+
+            // Computes points
+            var p0x = p0.x - floorx / 2;
+            var p0y = p0.y - floory / 2;
+            var p1x = p0x + floorx;
+            var p1y = p0y + floory;
+            var p2x = p1x + basex;
+            var p2y = p1y + basey;
+            var p3x = p2x + floorx;
+            var p3y = p2y + floory;
+            // p4 not necessary
+            var p5x = p3x - 3 * floorx;
+            var p5y = p3y - 3 * floory;*/
+
+            c.begin();
+
+
+            var debugHelperStr = "x: " + p0.x + ", y: " + p0.y + ", x1: " + pe.x +
+                ", y1: " + pe.y
+            if (pathPts.length > 0) {
+                console.log(debugHelperStr + " is overlapping something")
+                //find midpoint between two points and draw all three points
+
+                //c.moveTo(p1x, p1y);
+                c.moveTo(pathPts[0].x, pathPts[0].y);
+                for (var i = 1; i < pathPts.length; i++) {
+                    c.lineTo(pathPts[i].x, pathPts[i].y)
+                }
+                c.lineTo(p2x, p2y)
+                //c.strokeStyle = "red"
+                c.stroke();
+            } else {
+                console.log(debugHelperStr + " is NOT overlapping anything")
+                c.moveTo(p1x, p1y);
+                c.lineTo(p2x, p2y);
+                //c.moveTo(p5x + floorx, p5y + floory);
+                //c.lineTo(p0x, p0y);
+                //c.strokeStyle = "black"
+                c.stroke()
+            }
+
+        };
+
+        mxCellRenderer.registerShape('link', LinkShape)
+        //----end 7/17/2020
+
+        // 点击事件
+        graph.addListener(mxEvent.CLICK, function(sender, evt){
+            console.log("mxEvent.SELECT event fired")
+            var cell = evt.getProperty("cell"); // cell may be null
+            if (cell != null) {
+                var selectedCellIndex = globalObj.existingVertices.indexOf(cell)
+                if (selectedCellIndex >= 0) {
+                    globalObj.selectedmxGraphVertex = selectedCellIndex
+                }
+
+                layer.open({
+                    title: '查看',
+                    content: cell.value,
+                    area: ['500px', '650px'],
+                    id: 'label-zoom-in',
+                    maxmin: true,
+                    type: 1,
+                    scrollbar: false,
+                    success: function(layero, index) {
+                        // 弹层弹出成功后，重新渲染chart图表
+                        var $elms = $('#label-zoom-in .htCore [id$="altholder"]');
+
+                        for (var i=0;i<$elms.length; i++) {
+                            var elm = $elms[i];
+                            var id = elm.id.replace(/altholder/, 'alt');
+                            elm.innerHTML = ''
+                            elm.style.width = 'auto'
+                            elm.id = elm.id + '-layer'
+
+                            var data = globalObj.chartData[id];
+                            var bigHelper = globalObj.chartSetting;
+                            var height = document.getElementById(id)
+                            setTrendMapAlt(elm.id, data, bigHelper, 400, height)
+                        }
+                    }
+                })
+            }
+        });
+        graph.resizeContainer = false;
+        graph.allowNegativeCoordinates = false;
+        graph.autoExtend = false;
+        var borderSizes = graph.getBorderSizes();
+        var graphBounds = graph.getGraphBounds();
+        // console.log(graphBounds);
+        var parent = graph.getDefaultParent();
+        // Adds custom HTML labels
+        graph.setHtmlLabels(true);
+        graph.setAllowDanglingEdges(false);
+        // 禁止改变大小
+        graph.setCellsResizable(false);
+        // 禁止拖拽
+        graph.setCellsMovable(false);
+        /*禁用节点双击，防止改变数据 */
+        graph.dblClick = function (evt, cell) {
+            var model = graph.getModel();
+            if (model.isVertex(cell)) {
+                return false;
+            }
+        };
+        // 删除连线箭头
+        // var style = graph.getStylesheet().getDefaultEdgeStyle();
+        // delete style['endArrow'];
+
+        // 设置这个属性后节点之间才可以连接
+        // graph.setConnectable(true);//烦人的拖拽曲线
+        // 开启区域选择
+        // new mxRubberband(graph);
+        // graph.setCellsLocked(true);//是否可以移动连线，重新连接其他cell，主要用来展现中用
+    </script>
+    <div id="overlay" style="display:none;z-index:1;">
+    </div>
+    <div class="spinner" style="display:none;z-index:1;"></div>
+
+    <script>
+
+
+
+        $(document).ready(function(){
+
+          $("#container").draggable({ containment: "#pageScreen" })/*, distance: 10,// disabled: true,
+                drag: function() {
+                    //orbitControlChange();
+                }
+            });*/
+            $("#container").resizable({
+                handles: 'n, e, s, w, ne, nw, sw, se',// disabled: true,
+                resize: function( event, ui ) {
+                  var container = document.getElementById('container')
+                  var canvasElem = document.getElementById('canvas')
+                    /*window._camera.aspect = (container.offsetWidth - 40) / (container.offsetHeight - 40);
+                    window._camera.updateProjectionMatrix();
+                    window._renderer.setSize( container.offsetWidth - 40, container.offsetHeight - 40 );*/
+                    resizeCanvas(container.offsetWidth - 40, container.offsetHeight - 40)//$('#canvas').width(), $('#canvas').height())//ui.size.width, ui.size.height);
+                    /*var canvasRect = renderer.context.canvas.getBoundingClientRect();
+                    var graphContainerRect = document.getElementById('graphContainer').getBoundingClientRect();
+                    var topDiff2 = $('#container canvas').offset().top - $('#graphContainer').offset().top;
+                    var leftDiff2 = $('#container canvas').offset().left - $('#graphContainer').offset().left;
+                    var topDiff = canvasRect.top - graphContainerRect.top;
+                    var leftDiff = canvasRect.left - graphContainerRect.left;
+                    try {
+
+                      // Adds cells to the model in a single step
+                      graph.getModel().beginUpdate();
+                      var graphBounds = graph.getGraphBounds();
+                      parent = graph.getDefaultParent();
+                      var v1 = graph.insertVertex(parent, 'anchor1', '', 0 - graphBounds.x, 0 - graphBounds.y, 0, 0,'overflow=fill;fillColor=none;fontColor=#000000;');
+                      var v2 = graph.insertVertex(parent, 'anchor2', '', leftDiff - graphBounds.x, topDiff - graphBounds.y, 0, 0,'overflow=fill;fillColor=none;fontColor=#000000;');
+                      var e1 = graph.insertEdge(parent, 'anchorEdge', '', v1, v2);
+                      if (typeof globalObj.anchor === 'undefined')
+                      globalObj.anchor = {};
+                      else {
+                        graph.getModel().remove(globalObj.anchor.v1);
+                        graph.getModel().remove(globalObj.anchor.v2);
+                        graph.getModel().remove(globalObj.anchor.e1);
+                      }
+                      //graph.remove
+                      globalObj.anchor.v1 = v1;
+                      globalObj.anchor.v2 = v2;
+                      globalObj.anchor.e1 = e1;
+                    } finally {
+                      graph.getModel().endUpdate();
+                    }*/
+                    //orbitControlChange();
+                }
+            });
+        })
+
+    </script>
+
+    <!-- 添加模型树结构 -->
+
+    <script src="js/report/tabs.js" type="text/javascript"></script>
+</body>
+</html>
