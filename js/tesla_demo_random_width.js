@@ -272,7 +272,7 @@ function isUlrd(x, y) {
   var containerHeight = document.getElementById('container').offsetHeight;
   var containerLeft = document.getElementById('container').offsetLeft;
   var containerTop = document.getElementById('container').offsetTop;
-  if (y < containerTop) {
+  if (y < containerTop - officialHeight) {
     return "up"
   }
   if (y > (containerTop + containerHeight)) {
@@ -1669,7 +1669,7 @@ function lineHelper(x11, y11, x22, y22) {
 
                     } else if ((startPositions.up.currentX + labelW)
 
-                        <= startPositions.up.endX/2) { //ToDo, replace this 2 with something else
+                        <= startPositions.up.endX/3) { //ToDo, replace this 2 with something else
 
                         x1Up.push(startPositions.up.currentX);
 
@@ -1691,7 +1691,7 @@ function lineHelper(x11, y11, x22, y22) {
 
                       if ((startPositions.up.currentY + (labelH * 2) +
 
-                      (globalObj.spacing.chartSpacingUpDown * 2)) <= startPositions.up.endY/2) {
+                      (globalObj.spacing.chartSpacingUpDown * 2)) <= startPositions.up.endY) {//2) {
 
                         startPositions.up.currentY += labelH + globalObj.spacing.chartSpacingUpDown
 
@@ -1827,7 +1827,7 @@ function lineHelper(x11, y11, x22, y22) {
 
                   } else if ((startPositions.down.currentX + labelW)
 
-                        <= startPositions.down.endX/2) {
+                        <= startPositions.down.endX/3) {
 
                         x1Down.push(startPositions.down.currentX);
 
@@ -1849,7 +1849,7 @@ function lineHelper(x11, y11, x22, y22) {
 
                       if ((startPositions.down.currentY + (labelH * 2) +
 
-                      (globalObj.spacing.chartSpacingUpDown * 2)) <= startPositions.down.endY/2) {
+                      (globalObj.spacing.chartSpacingUpDown * 2)) <= startPositions.down.endY) {//2) {
 
                         startPositions.down.currentY += labelH + globalObj.spacing.chartSpacingUpDown
 
@@ -1955,21 +1955,18 @@ function lineHelper(x11, y11, x22, y22) {
 
                 }
 
-                var tempRandom = randomBalancer(upBalance/(upNumOfLabelsPerRow - i))
+                var tempRandom = randomBalancer(upBalance/(upNumOfLabelsPerRow - i < 1?1:upNumOfLabelsPerRow - i))
                 tempRandom = startPositions.up.endX < x1Up[i] + tempRandom + labelW +
                 globalObj.spacing.chartSpacingLeftRight?
                 startPositions.up.endX - x1Up[i] - minW - 5:tempRandom
 
-
+                tempRandom = tempRandom > upBalance?upBalance/2:tempRandom
                 tempRandom = tempRandom < minW ? minW:tempRandom
 
                 upBalance -= (tempRandom)
 
                 widthBalancer += tempRandom
                 randomWidthMapper[x1Up[i]+','+y1Up[i]] = (labelW + tempRandom)
-
-
-                //getLabelPositions2HelperObj[x1Up[i] + ',' + y1Up[i]] = 'up';
 
             }
 
@@ -1980,18 +1977,6 @@ function lineHelper(x11, y11, x22, y22) {
             var leftWidth = containerLeft// - globalObj.spacing.pageSpacingLeftRight;
 
             var leftHeight = containerHeight;
-
-            //if (!useTheseSides.up) {
-
-                //leftHeight += containerTop;
-
-            //}
-
-            //if (!useTheseSides.down) {
-
-                //leftHeight += (pageScreenHeight - containerHeight - containerTop);
-
-            //}
 
             var leftUsedHeight = y1Left[(leftNumOfLabelsPerColumn) - 1] +
 
@@ -2055,16 +2040,6 @@ function lineHelper(x11, y11, x22, y22) {
                   x1Left[(j * leftNumOfLabelsPerColumn) + i] = x1Left[((j - 1) * leftNumOfLabelsPerColumn) + i] +
                   tempWidthHelper + globalObj.spacing.chartSpacingLeftRight
                 }
-
-                  // + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1))) + widthBalancer
-
-
-
-                /*y1Left[(j * leftNumOfLabelsPerColumn) + i] =
-
-                Math.floor(y1Left[(j * leftNumOfLabelsPerColumn) + i] +
-
-                (leftMarginY * (i + 1)))*/
 
                 if (x1Left[(j * leftNumOfLabelsPerColumn) + i] > startPositions.left.endX ||
                 leftBalance < 0 || isNaN(y1Left[(j * leftNumOfLabelsPerColumn) + i]) ||
@@ -2286,7 +2261,7 @@ function lineHelper(x11, y11, x22, y22) {
                 //var tempRandom = randomBalancer(downBalance/3)//labelW/2)
 
                 tempRandom = tempRandom < minW ? minW:tempRandom
-
+                tempRandom = tempRandom > upBalance?upBalance/2:tempRandom
                 downBalance -= (tempRandom + globalObj.spacing.chartSpacingLeftRight + 1)
 
                 widthBalancer += tempRandom + globalObj.spacing.chartSpacingLeftRight
@@ -2354,7 +2329,7 @@ function lineHelper(x11, y11, x22, y22) {
                 leftUsedWidthHelper2
                 leftUsedWidthHelper3 -= x1Left[0]
                 leftUsedWidthHelper3 = isNaN(leftUsedWidthHelper3)?0:leftUsedWidthHelper3
-                leftUsedWidthHelper3 = (leftWidth - leftUsedWidthHelper3) / (leftNumOfColumns2 + 9)
+                leftUsedWidthHelper3 = (leftWidth - leftUsedWidthHelper3) / (leftNumOfColumns2 + 1)//9)
                 leftUsedWidthHelper3 = leftUsedWidthHelper3 < 0?0:leftUsedWidthHelper3
                 leftUsedWidthHelperArr.push(leftUsedWidthHelper3)
               } else {
@@ -2424,7 +2399,7 @@ function lineHelper(x11, y11, x22, y22) {
                 rightUsedWidthHelper3 -= x1Right[0]
                 rightUsedWidthHelper3 = isNaN(rightUsedWidthHelper3)?0:rightUsedWidthHelper3
                 rightUsedWidthHelper3 = (pageScreenWidth - (containerLeft + containerWidth) -
-                    rightUsedWidthHelper3) / (rightNumOfColumns2 + 10)
+                    rightUsedWidthHelper3) / (rightNumOfColumns2 + 1)//9) + 10)
                 rightUsedWidthHelper3 = rightUsedWidthHelper3<0?0:rightUsedWidthHelper3
                 rightUsedWidthHelperArr.push(rightUsedWidthHelper3)
               } else {
@@ -2436,7 +2411,7 @@ function lineHelper(x11, y11, x22, y22) {
                 rightUsedWidthHelper3 -= x1Right[0]
                 rightUsedWidthHelper3 = isNaN(rightUsedWidthHelper3)?0:rightUsedWidthHelper3
                 rightUsedWidthHelper3 = (pageScreenWidth - (containerLeft + containerWidth) -
-                    rightUsedWidthHelper3) / (rightNumOfColumns2 + 10)
+                    rightUsedWidthHelper3) / (rightNumOfColumns2 + 9)// + 10)
                 rightUsedWidthHelper3 = rightUsedWidthHelper3<0?0:rightUsedWidthHelper3
                 rightUsedWidthHelperArr.push(rightUsedWidthHelper3)
               }
