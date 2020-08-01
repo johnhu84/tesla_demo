@@ -2364,7 +2364,8 @@ function lineHelper(x11, y11, x22, y22) {
               var leftMarginXCurr = leftUsedWidthHelperArr[rowHelper]
               if (rowHelper == leftUsedWidthHelperArr.length - 1 && leftNumOfColumns2 >= 1) {
                 //x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr * (Math.floor(i/leftNumOfLabelsPerColumn) + 1)))
-                x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr * (Math.floor(i/leftNumOfColumnsInLastRow) + 1)))
+                x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr *
+                  (leftNumOfColumnsInLastRow <= 0?0:Math.floor(i/leftNumOfColumnsInLastRow) + 1)))
               } else if (rowHelper <= leftUsedWidthHelperArr.length && leftNumOfColumns2 >= 1) {
                 x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr * (Math.floor(i/leftNumOfColumns2) + 1)))
               } else {
@@ -2440,7 +2441,7 @@ function lineHelper(x11, y11, x22, y22) {
 
                 if (rowHelper == rightUsedWidthHelperArr.length - 1 && rightNumOfColumns2 >= 1) {
                   x1Right[i] = Math.floor(x1Right[i] + (rightMarginXCurr *
-                    (Math.floor(i/rightNumOfColumnsInLastRow) + 1)))
+                    (rightNumOfColumnsInLastRow<=0?0:Math.floor(i/rightNumOfColumnsInLastRow) + 1)))
                 } else if (rowHelper < rightUsedWidthHelperArr.length - 1 && rightNumOfColumns2 >= 1) {
                   x1Right[i] = Math.floor(x1Right[i] + (rightMarginXCurr *
                     (Math.floor(i/rightNumOfColumns2) + 1)))
