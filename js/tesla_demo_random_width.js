@@ -2329,7 +2329,11 @@ function lineHelper(x11, y11, x22, y22) {
                 leftUsedWidthHelper2
                 leftUsedWidthHelper3 -= x1Left[0]
                 leftUsedWidthHelper3 = isNaN(leftUsedWidthHelper3)?0:leftUsedWidthHelper3
-                leftUsedWidthHelper3 = (leftWidth - leftUsedWidthHelper3) / (leftNumOfColumns2 + 9)
+
+                //leftUsedWidthHelper3 = (leftWidth - leftUsedWidthHelper3) / (leftNumOfColumns2 + 9)
+                //leftUsedWidthHelper3 = (leftWidth - leftUsedWidthHelper3) / (leftNumOfColumns2)
+                leftUsedWidthHelper3 = (leftWidth - leftUsedWidthHelper3)/2
+
                 leftUsedWidthHelper3 = leftUsedWidthHelper3 < 0?0:leftUsedWidthHelper3
                 leftUsedWidthHelper3 -= globalObj.spacing.chartSpacingLeftRight
                 leftUsedWidthHelper3 = leftUsedWidthHelper3 < 0?0:leftUsedWidthHelper3
@@ -2358,18 +2362,26 @@ function lineHelper(x11, y11, x22, y22) {
             leftMarginX = isNaN(leftMarginX) ? 0 : leftMarginX;
             leftMarginY = isNaN(leftMarginY) ? 0 : leftMarginY;
             for (var i = 0; i < x1Left.length; i++) {
+
               var rowHelper = i%leftNumOfLabelsPerColumn
+              //var rowHelper = Math.floor(i/leftNumOfColumns2)
+              var colHelper = Math.floor(i/leftNumOfColumns2)
+              //i%leftNumOfLabelsPerColumn
+
               var ow = randomWidthMapper[x1Left[i]+','+y1Left[i]]
               delete randomWidthMapper[x1Left[i]+','+y1Left[i]]
               var leftMarginXCurr = leftUsedWidthHelperArr[rowHelper]
               if (rowHelper == leftUsedWidthHelperArr.length - 1 && leftNumOfColumns2 >= 1) {
                 //x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr * (Math.floor(i/leftNumOfLabelsPerColumn) + 1)))
-                x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr *
-                  (leftNumOfColumnsInLastRow <= 0?0:Math.floor(i/leftNumOfColumnsInLastRow) + 1)))
+
+                x1Left[i] = Math.floor(x1Left[i] + leftMarginXCurr)//(leftMarginXCurr *
+                  //(leftNumOfColumnsInLastRow <= 0?0:i%leftNumOfColumnsInLastRow)))
+                  //)//Math.floor(i/leftNumOfColumnsInLastRow))))// + 1)))
+
               } else if (rowHelper <= leftUsedWidthHelperArr.length && leftNumOfColumns2 >= 1) {
-                x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr * (Math.floor(i/leftNumOfColumns2) + 1)))
+                x1Left[i] = Math.floor(x1Left[i] + (leftMarginXCurr))// * colHelper))//(Math.floor(i/leftNumOfColumns2) + 1)))
               } else {
-                x1Left[i] = Math.floor(x1Left[i] + (leftMarginX * (Math.floor(i/leftNumOfLabelsPerColumn) + 1)))
+                x1Left[i] = Math.floor(x1Left[i] + (leftMarginX))// * colHelper))//(Math.floor(i/leftNumOfLabelsPerColumn) + 1)))
               }
                 y1Left[i] = Math.floor(y1Left[i] + (leftMarginY * ((i%leftNumOfLabelsPerColumn) + 1)));
                 randomWidthMapper[x1Left[i]+','+y1Left[i]] = ow
@@ -2402,7 +2414,8 @@ function lineHelper(x11, y11, x22, y22) {
                 rightUsedWidthHelper3 -= x1Right[0]
                 rightUsedWidthHelper3 = isNaN(rightUsedWidthHelper3)?0:rightUsedWidthHelper3
                 rightUsedWidthHelper3 = (pageScreenWidth - (containerLeft + containerWidth) -
-                    rightUsedWidthHelper3) / (rightNumOfColumns2 + 9)// + 10)
+                    rightUsedWidthHelper3) / 2//(rightNumOfColumns2 + 9)
+                    // + 10)
                 rightUsedWidthHelper3 = rightUsedWidthHelper3<0?0:rightUsedWidthHelper3
                 rightUsedWidthHelperArr.push(rightUsedWidthHelper3)
               } else {
@@ -2433,6 +2446,7 @@ function lineHelper(x11, y11, x22, y22) {
             for (var i = 0; i < x1Right.length; i++) {
 
               var rowHelper = i%rightNumOfLabelsPerColumn
+              var colHelper = Math.floor(i/rightNumOfColumns2)
               var rightMarginXCurr = rightUsedWidthHelperArr[rowHelper]
 
               var ow = randomWidthMapper[x1Right[i]+','+y1Right[i]]
@@ -2440,11 +2454,11 @@ function lineHelper(x11, y11, x22, y22) {
                 //x1Right[i] = Math.floor(x1Right[i] + (rightMarginX * (Math.floor(i/rightNumOfLabelsPerColumn) + 1)));
 
                 if (rowHelper == rightUsedWidthHelperArr.length - 1 && rightNumOfColumns2 >= 1) {
-                  x1Right[i] = Math.floor(x1Right[i] + (rightMarginXCurr *
-                    (rightNumOfColumnsInLastRow<=0?0:Math.floor(i/rightNumOfColumnsInLastRow) + 1)))
+                  x1Right[i] = Math.floor(x1Right[i] + rightMarginXCurr)//(rightMarginXCurr *
+                    //(rightNumOfColumnsInLastRow<=0?0:Math.floor(i/rightNumOfColumnsInLastRow) + 1)))
                 } else if (rowHelper < rightUsedWidthHelperArr.length - 1 && rightNumOfColumns2 >= 1) {
-                  x1Right[i] = Math.floor(x1Right[i] + (rightMarginXCurr *
-                    (Math.floor(i/rightNumOfColumns2) + 1)))
+                  x1Right[i] = Math.floor(x1Right[i] + (rightMarginXCurr))// *
+                    //(Math.floor(i/rightNumOfColumns2) + 1)))
                 } else {
                   //might cause bugs, might need to change rightNumOfLabelsPerColumn to rightNumOfColumns2
                   x1Right[i] = Math.floor(x1Right[i] + (rightMarginX * (Math.floor(i/rightNumOfLabelsPerColumn) + 1)))
